@@ -1,0 +1,38 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { SESSION_COOKIE } from '@/lib/session';
+import { MEMBER_SESSION_COOKIE } from '@/lib/member-session';
+
+export function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+
+    // Public landing page
+    if (pathname === '/') return NextResponse.next();
+
+    // Member portal zone
+    if (pathname.startsWith('/portal')) {
+        if (pathname.startsWith('/portal/login')) return NextResponse.next();
+
+        const memberToken = request.cookies.get(MEMBER_SESSION_COOKIE)?.value;
+        if (!memberToken) {
+            const loginUrl = new URL('/portal/login', request.url);
+            return NextResponse.redirect(loginUrl);
+        }
+        return NextResponse.next();
+    }
+
+    // Staff zone (everything else)
+    if (pathname.startsWith('/login')) return NextResponse.next();
+
+    const token = request.cookies.get(SESSION_COOKIE)?.value;
+    if (!token) {
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('from', pathname);
+        return NextResponse.redirect(loginUrl);
+    }
+
+    return NextResponse.next();
+}
+
+export const config = {
+    matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};

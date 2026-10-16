@@ -1,0 +1,45 @@
+Deployment --lagacy-peer
+- run:
+    Set-Content -Path .npmrc -Value "legacy-peer-deps=true" -Encoding ascii
+
+Installing Jest test:
+- npm install -D jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event
+- npm install -D @types/jest @testing-library/dom
+
+Files:
+-jest.config.js:
+const nextJest = require('next/jest');
+
+const createJestConfig = nextJest({ dir: './' });
+
+const customJestConfig = {
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testEnvironment: 'jest-environment-jsdom',
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+};
+
+module.exports = createJestConfig(customJestConfig);
+
+- jest.setup.js
+import '@testing-library/jest-dom';
+
+- Add to package.json scripts:
+"test": "jest",
+"test:watch": "jest --watch"
+
+- Open tsconfig.json and add "jest" to the types array under compilerOptions. If there's no types array yet, add one:
+"compilerOptions": {
+    // ...existing options...
+    "types": ["jest", "node"]
+  }
+"include": [
+    "next-env.d.ts",
+    "jest-setup.d.ts",
+]
+
+- Create jest-setup.d.ts:
+/// <reference types="@testing-library/jest-dom" />
+
+// shadcn => npx shadcn@latest add dropdown-menu
