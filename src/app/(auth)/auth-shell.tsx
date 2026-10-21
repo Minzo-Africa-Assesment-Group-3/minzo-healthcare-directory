@@ -9,23 +9,25 @@ type AuthShellProps = {
     subtitle?: React.ReactNode;
     imageSrc?: string;
     showBack?: boolean;
-    hero?: React.ReactNode; // optional graphic between logo and title
+    onBack?: () => void; // defaults to router.back()
+    hero?: React.ReactNode;
     children: React.ReactNode;
 };
 
 export default function AuthShell({
     title,
     subtitle,
-    imageSrc = '/login.webp',
+    imageSrc = '/auth/nurse.jpg',
     showBack = true,
+    onBack,
     hero,
     children,
 }: AuthShellProps) {
     const router = useRouter();
 
     return (
-        <div className="flex min-h-screen bg-white font-(family-name:--font-inter)">
-            {/* Left: image (desktop only) */}
+        <div className="flex min-h-dvh bg-white font-(family-name:--font-inter) lg:h-dvh lg:overflow-hidden">
+            {/* Left: image (desktop only), fixed in place */}
             <div className="relative hidden w-1/2 lg:block">
                 <Image
                     src={imageSrc}
@@ -37,9 +39,13 @@ export default function AuthShell({
                 />
             </div>
 
-            {/* Right: content */}
-            <main className="flex w-full items-center justify-center px-4 py-10 sm:px-8 lg:w-1/2">
-                <div className="w-full max-w-md">
+            {/* Right: content. On lg+ this is the only scrolling area */}
+            <main
+                id="auth-main"
+                className="flex w-full px-4 py-10 sm:px-8 lg:w-1/2 lg:overflow-y-auto"
+            >
+                {/* m-auto centres short content and lets tall content scroll from the top */}
+                <div className="m-auto w-full max-w-md">
                     <div className="flex flex-col items-center text-center">
                         <Image
                             src="/Minzo-Logo-1.jpg"
@@ -55,8 +61,8 @@ export default function AuthShell({
                         {showBack && (
                             <button
                                 type="button"
-                                onClick={() => router.back()}
-                                className="mt-8 inline-flex items-center gap-2 rounded text-sm font-medium text-gray-900 hover:text-[#0C486D] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0C486D]"
+                                onClick={() => (onBack ? onBack() : router.back())}
+                                className="mt-8 inline-flex items-center gap-2 rounded text-sm font-medium text-gray-900 hover:text-[#0C486D] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0C486D] cursor-pointer"
                             >
                                 <ArrowLeft className="h-4 w-4" aria-hidden />
                                 Go back

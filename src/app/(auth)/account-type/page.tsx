@@ -23,7 +23,7 @@ export default function AccountTypeForm() {
         if (accountType === 'care-seeker') {
             router.push(`/register/user?type=${accountType}`); 
         } else if (accountType === 'business-owner') {
-            router.push(`/signup/business?type=${accountType}`);
+            router.push(`/register/business?type=${accountType}`);
         }
     };
 

@@ -10,7 +10,7 @@ import { notify } from '@/lib/toast';
 import AuthShell from '../../auth-shell';
 
 const signupSchema = z.object({
-    fullName: z.string().trim().min(2, 'Enter your full name'),
+    displayName: z.string().trim().min(2, 'Enter your full name'),
     email: z.string().min(1, 'Email is required').email('Enter a valid email address'),
     phone: z
         .string()
@@ -40,23 +40,22 @@ export default function CareSignupForm() {
         hasError ? 'border-red-500' : 'border-gray-200 focus:border-[#0C486D]';
 
     const onSubmit = async (values: SignupValues) => {
-        // setServerError(null);
+        setServerError(null);
 
-        // // Adjust endpoint/payload to your backend
-        // const res = await fetch('/api/auth/register', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ ...values, accountType: 'care-seeker' }),
-        // });
+        const res = await fetch('/api/v1/auth/register/user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(values),
+        });
 
-        // const data = await res.json();
+        const data = await res.json();
 
-        // if (!res.ok) {
-        //     const message = data.message ?? 'Could not create your account. Try again.';
-        //     setServerError(message);
-        //     notify.error(message);
-        //     return;
-        // }
+        if (!res.ok) {
+            const message = data.message ?? 'Could not create your account. Try again.';
+            setServerError(message);
+            notify.error(message);
+            return;
+        }
 
         router.push(`/register/verify-email?email=${encodeURIComponent(values.email)}&type=email`);
     };
@@ -68,18 +67,18 @@ export default function CareSignupForm() {
         >
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
                 <div>
-                    <label htmlFor="fullName" className={labelClass}>Full name</label>
+                    <label htmlFor="displayName" className={labelClass}>Full name</label>
                     <input
-                        id="fullName"
+                        id="displayName"
                         type="text"
                         placeholder="e.g Miatte Kollie"
                         autoComplete="name"
-                        aria-invalid={!!errors.fullName}
-                        className={`${inputClass} ${borderFor(!!errors.fullName)}`}
-                        {...register('fullName')}
+                        aria-invalid={!!errors.displayName}
+                        className={`${inputClass} ${borderFor(!!errors.displayName)}`}
+                        {...register('displayName')}
                     />
-                    {errors.fullName && (
-                        <p className="mt-1 text-xs text-red-600">{errors.fullName.message}</p>
+                    {errors.displayName && (
+                        <p className="mt-1 text-xs text-red-600">{errors.displayName.message}</p>
                     )}
                 </div>
 

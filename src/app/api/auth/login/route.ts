@@ -4,11 +4,12 @@ import { LoginResponse } from '@/lib/types';
 import { SESSION_COOKIE, REFRESH_COOKIE } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
+    console.log('LOGIN ROUTE HIT');
     const body = await request.json();
 
     try {
         const data = await apiClient.post<LoginResponse & { refreshToken: string }>(
-            '/auth/login',
+            '/api/v1/auth/login',
             body,
         );
 

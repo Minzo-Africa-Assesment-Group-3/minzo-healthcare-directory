@@ -8,7 +8,7 @@ export async function POST() {
     const token = cookieStore.get(SESSION_COOKIE)?.value;
 
     if (token) {
-        await apiClient.post('/auth/logout', undefined, token).catch(() => { });
+        await apiClient.post('/api/v1/auth/logout', undefined, token).catch(() => { });
     }
 
     const response = NextResponse.json({ success: true });

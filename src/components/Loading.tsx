@@ -4,9 +4,9 @@ export default function Loading() {
             <div className="flex flex-col items-center gap-5">
                 {/* Animated logo/icon */}
                 <div className="relative flex items-center justify-center">
-                    <div className="h-16 w-16 rounded-full border-4 border-green-100 border-t-[#006B3C] animate-spin" />
+                    <div className="h-16 w-16 rounded-full border-4 border-gray-100 border-t-[#0C486D] animate-spin" />
 
-                    <div className="absolute flex h-10 w-10 items-center justify-center rounded-full bg-[#006B3C]">
+                    <div className="absolute flex h-10 w-10 items-center justify-center rounded-full bg-[#0C486D]">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -27,7 +27,7 @@ export default function Loading() {
                 {/* Text */}
                 <div className="text-center">
                     <p className="text-sm font-semibold text-gray-800">
-                        Loading your account
+                        Loading
                     </p>
 
                     <p className="mt-1 text-xs text-gray-500">
@@ -37,9 +37,9 @@ export default function Loading() {
 
                 {/* Loading dots */}
                 <div className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#006B3C] animate-bounce [animation-delay:-0.3s]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#006B3C] animate-bounce [animation-delay:-0.15s]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#006B3C] animate-bounce" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#0C486D] animate-bounce [animation-delay:-0.3s]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#0C486D] animate-bounce [animation-delay:-0.15s]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#0C486D] animate-bounce" />
                 </div>
             </div>
         </div>

@@ -37,9 +37,10 @@ export default function LoginForm() {
     const onSubmit = async (values: LoginFormValues) => {
         setServerError(null);
 
-        const res = await fetch('/api/auth/login', {
+        const res = await fetch('/api/v1/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(values),
         });
 
@@ -53,7 +54,7 @@ export default function LoginForm() {
         }
 
         setUser(data.user);
-        const redirectTo = searchParams.get('from') ?? '/dashboard';
+        const redirectTo = searchParams.get('from') ?? '/otp?email=solomonakpas@gmail.com';
         notify.success(`Welcome back, ${data.user.fullName}`);
         router.push(redirectTo);
         router.refresh();
