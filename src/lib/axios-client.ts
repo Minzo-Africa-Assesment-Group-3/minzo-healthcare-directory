@@ -2,7 +2,7 @@ import axios from 'axios';
 import { notify } from './toast';
 
 export const api = axios.create({
-  baseURL: '/api/proxy',
+  baseURL: '/api/proxy/api/v1/auth',
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -42,7 +42,8 @@ api.interceptors.response.use(
       return new Promise(() => { });
     }
 
-    const message = error.response?.data?.message ?? 'Something went wrong';
+    const message = error.response.data.errors?.body[0]?.message ? error.response.data.errors?.body[0]?.message : error.response.data.detail ? error.response.data.detail : 'Something went wrong';
+    // console.log(error.response.data.detail)
     const text = Array.isArray(message) ? message.join(', ') : message;
     notify.error(text);
     return Promise.reject(new Error(text));

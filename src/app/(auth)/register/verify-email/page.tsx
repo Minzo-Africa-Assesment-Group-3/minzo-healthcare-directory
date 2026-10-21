@@ -1,110 +1,171 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { notify } from '@/lib/toast';
 import AuthShell from '../../auth-shell';
+import { usersService } from '@/services/users.service';
+import Loading from '@/components/Loading';
 
-const RESEND_SECONDS = 30;
+const REDIRECT_DELAY_MS = 3000;
 
-const formatTime = (s: number) =>
-    `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+type Status = 'verifying' | 'success' | 'error';
+
+const getErrorMessage = (err: unknown): string => {
+    const e = err as { response?: { data?: { message?: string } }; message?: string };
+    return (
+        e?.response?.data?.message ||
+        e?.message ||
+        'This verification link is invalid or has expired.'
+    );
+};
 
 export default function VerifyEmail() {
     const router = useRouter();
-    const email = useSearchParams().get('email');
+    const token = useSearchParams().get('token');
 
-    const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
-    const [isResending, setIsResending] = useState(false);
+    const [status, setStatus] = useState<Status>(token ? 'verifying' : 'error');
+    const [errorMessage, setErrorMessage] = useState(
+        token ? '' : 'Verification token not found. Please use the link from your email.'
+    );
 
-    // Countdown: ticks once per second until it reaches 0
+    const verifiedToken = useRef<string | null>(null);
+
     useEffect(() => {
-        if (secondsLeft <= 0) return;
-        const id = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
+        if (!token || verifiedToken.current === token) return;
+        verifiedToken.current = token;
+
+        // let cancelled = false;
+
+        (async () => {
+            try {
+                await usersService.verifyEmail({ token });
+                // if (!cancelled) 
+                setStatus('success');
+            } catch (err) {
+                // if (cancelled) return;
+                setErrorMessage(getErrorMessage(err));
+                setStatus('error');
+            }
+        })();
+
+        // return () => {
+        //     cancelled = true;
+        // };
+    }, [token]);
+
+    console.log(status)
+
+    // Auto-redirect after success
+    useEffect(() => {
+        if (status !== 'success') return;
+        const id = setTimeout(() => router.replace('/login'), REDIRECT_DELAY_MS);
         return () => clearTimeout(id);
-    }, [secondsLeft]);
+    }, [status, router]);
 
-    const handleResend = useCallback(async () => {
-        // if (!email || secondsLeft > 0 || isResending) return;
-        // setIsResending(true);
+    if (status === 'verifying') {
+        return <Loading message="Verifying" />;
+    }
 
-        // // Adjust endpoint to your backend
-        // const res = await fetch('/api/auth/resend-verification', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ email }),
-        // });
+    if (status === 'success') {
+        return (
+            <AuthShell
+                showBack={false}
+                title="Account verified"
+                hero={
+                    <div className="relative flex h-32 w-32 items-center justify-center sm:h-36 sm:w-36">
+                        <span className="verify-ring absolute inset-0 rounded-full bg-[#E6F0E6]" />
+                        <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-[#2E7D4F] shadow-[0_12px_24px_-8px_rgba(46,125,79,0.5)]">
+                            <svg
+                                viewBox="0 0 24 24"
+                                className="h-10 w-10"
+                                fill="none"
+                                stroke="white"
+                                strokeWidth={3}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path className="verify-check" d="M5 12.5l4.5 4.5L19 7.5" />
+                            </svg>
+                        </span>
+                    </div>
+                }
+                subtitle="Your email is confirmed. Redirecting you to login…"
+            >
+                <div
+                    className="mx-auto h-1 w-full max-w-xs overflow-hidden rounded-full bg-[#E6F0E6]"
+                    role="progressbar"
+                    aria-label="Redirecting to login"
+                >
+                    <div
+                        className="verify-bar h-full rounded-full bg-[#0C486D]"
+                        style={{ animationDuration: `${REDIRECT_DELAY_MS}ms` }}
+                    />
+                </div>
 
-        // setIsResending(false);
+                <button
+                    type="button"
+                    onClick={() => router.replace('/login')}
+                    className="mt-6 w-full text-center text-sm font-semibold text-[#0C486D] hover:underline cursor-pointer"
+                >
+                    Go to login now
+                </button>
 
-        // if (!res.ok) {
-        //     const data = await res.json().catch(() => ({}));
-        //     notify.error(data.message ?? 'Could not resend the link. Try again.');
-        //     return;
-        // }
+                <style>{`
+                    .verify-ring { animation: verify-pop 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+                    .verify-check {
+                        stroke-dasharray: 24;
+                        stroke-dashoffset: 24;
+                        animation: verify-draw 450ms 250ms ease-out forwards;
+                    }
+                    .verify-bar {
+                        width: 0;
+                        animation-name: verify-fill;
+                        animation-timing-function: linear;
+                        animation-fill-mode: forwards;
+                    }
+                    @keyframes verify-pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                    @keyframes verify-draw { to { stroke-dashoffset: 0; } }
+                    @keyframes verify-fill { to { width: 100%; } }
+                    @media (prefers-reduced-motion: reduce) {
+                        .verify-ring, .verify-check { animation: none; stroke-dashoffset: 0; }
+                    }
+                `}</style>
+            </AuthShell>
+        );
+    }
 
-        // notify.success('Verification link sent');
-        // setSecondsLeft(RESEND_SECONDS);
-    }, [email, secondsLeft, isResending]);
-
+    // status === 'error'
     return (
         <AuthShell
             showBack={false}
-            title="Check your inbox"
+            title="Verification failed"
             hero={
-                <div className="flex h-32 w-32 items-center justify-center rounded-full bg-[#E6F0E6] sm:h-36 sm:w-36">
-                    <Image
-                        src="/mail.svg"
-                        alt=""
-                        width={80}
-                        height={80}
-                        className="h-20 w-20 object-contain"
-                    />
+                <div className="flex h-32 w-32 items-center justify-center rounded-full bg-red-50 sm:h-36 sm:w-36">
+                    <span className="flex h-20 w-20 items-center justify-center rounded-full bg-red-500 shadow-[0_12px_24px_-8px_rgba(239,68,68,0.5)]">
+                        <svg
+                            viewBox="0 0 24 24"
+                            className="h-10 w-10"
+                            fill="none"
+                            stroke="white"
+                            strokeWidth={3}
+                            strokeLinecap="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M7 7l10 10M17 7L7 17" />
+                        </svg>
+                    </span>
                 </div>
             }
-            subtitle={
-                <>
-                    We sent a verification link to{' '}
-                    {email ? (
-                        <strong className="font-semibold text-gray-700">{email}</strong>
-                    ) : (
-                        'your email'
-                    )}
-                    . Please click on it to verify your email.
-                </>
-            }
+            subtitle={errorMessage}
         >
             <button
                 type="button"
-                onClick={() => router.push('/register/success')}
-                className="h-14 w-full rounded-full bg-[#0C486D] text-base font-medium text-white shadow-[0_12px_24px_-8px_rgba(12,72,109,0.35)] transition-colors hover:bg-[#0a3b5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0C486D]"
+                onClick={() => router.push('/login')}
+                className="h-14 w-full rounded-full bg-[#0C486D] text-base font-medium text-white shadow-[0_12px_24px_-8px_rgba(12,72,109,0.35)] transition-colors hover:bg-[#0a3b5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0C486D] cursor-pointer"
             >
-                Continue
+                Go to login
             </button>
-
-            <p className="mt-5 text-center font-(family-name:--font-roboto-slab) text-sm font-medium text-gray-900">
-                Did not receive code?{' '}
-                {secondsLeft > 0 ? (
-                    <span className="font-semibold text-[#0C486D]">Resend in {secondsLeft}sec</span>
-                ) : (
-                    <button
-                        type="button"
-                        onClick={handleResend}
-                        disabled={isResending}
-                        className="font-semibold text-[#0C486D] hover:underline disabled:opacity-50"
-                    >
-                        {isResending ? 'Sending…' : 'Resend'}
-                    </button>
-                )}
-            </p>
-
-            <p
-                className="mt-6 text-center text-sm font-semibold tabular-nums text-gray-500"
-                aria-live="off"
-            >
-                {formatTime(secondsLeft)}
-            </p>
         </AuthShell>
     );
 }

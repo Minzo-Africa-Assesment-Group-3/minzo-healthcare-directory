@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+
 import { Users, PiggyBank, HandCoins, Wallet, ClipboardCheck, AlertTriangle } from 'lucide-react';
 import { KpiCard } from '@/components/kpi-card';
 import { membersService } from '@/services/members.service';
@@ -86,7 +87,7 @@ export default function DashboardHomePage() {
 
     return (
         <div className="space-y-6">
-            <div>
+            {/* <div>
                 <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
                 <p className="text-sm text-gray-500">Welcome back, {user?.fullName}</p>
             </div>
@@ -193,7 +194,9 @@ export default function DashboardHomePage() {
                         )}
                     </div>
                 </div>
-            )}
+            )} */}
+
+
         </div>
     );
 }

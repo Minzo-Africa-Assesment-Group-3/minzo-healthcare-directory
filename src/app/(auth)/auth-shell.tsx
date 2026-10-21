@@ -39,12 +39,10 @@ export default function AuthShell({
                 />
             </div>
 
-            {/* Right: content. On lg+ this is the only scrolling area */}
             <main
                 id="auth-main"
                 className="flex w-full px-4 py-10 sm:px-8 lg:w-1/2 lg:overflow-y-auto"
             >
-                {/* m-auto centres short content and lets tall content scroll from the top */}
                 <div className="m-auto w-full max-w-md">
                     <div className="flex flex-col items-center text-center">
                         <Image

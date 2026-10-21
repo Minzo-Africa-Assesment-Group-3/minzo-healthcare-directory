@@ -8,17 +8,17 @@ import { TopbarMobile } from '@/components/top-bar-mobile';
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
     const user = await getCurrentUser();
 
-    if (!user) {
-        redirect('/login');
-    }
+    // if (!user) {
+    //     redirect('/login');
+    // }
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50 md:flex-row">
-            <AuthHydrator user={user} />
+            {/* <AuthHydrator user={user} /> */}
             <TopbarMobile />
-            <div className="hidden md:block">
+            {/* <div className="hidden md:block">
                 <Sidebar />
-            </div>
+            </div> */}
             <div className='block md:hidden'>
                 <SidebarMobile />
             </div>
