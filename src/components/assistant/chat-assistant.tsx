@@ -33,7 +33,7 @@ interface StreamEvent {
 
 const initialMessage: ChatMessage = {
   content:
-    "Hello! I can help you find healthcare facilities, services, and public information in Liberia.",
+    "Hello, I'm Ada. I can help you find healthcare facilities, services, and public information in Liberia.",
   id: "welcome",
   isGreeting: true,
   role: "assistant",
@@ -332,8 +332,8 @@ export function ChatAssistant(): React.JSX.Element {
                 <Bot className="size-5" aria-hidden="true" />
               </div>
               <div>
-                <h2 className="text-sm font-bold">Minzo Assistant</h2>
-                <p className="text-xs text-blue-100">Ask about healthcare services</p>
+                <h2 className="text-sm font-bold">Ada</h2>
+                <p className="text-xs text-blue-100">Your Minzo health assistant</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -406,7 +406,7 @@ export function ChatAssistant(): React.JSX.Element {
 
           <form onSubmit={sendMessage} className="border-t border-slate-200 bg-white p-3">
             <label htmlFor="assistant-message" className="sr-only">
-              Ask Minzo Assistant
+              Ask Ada
             </label>
             <div className="flex items-end gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 focus-within:border-[#0C486D] focus-within:ring-2 focus-within:ring-[#0C486D]/15">
               <textarea
@@ -456,7 +456,7 @@ export function ChatAssistant(): React.JSX.Element {
               )}
             </div>
             <p className="mt-2 text-center text-[11px] text-slate-500">
-              Minzo Assistant can make mistakes. Confirm urgent health information with a provider.
+              Ada can make mistakes. Confirm urgent health information with a provider.
             </p>
           </form>
         </section>
@@ -466,7 +466,7 @@ export function ChatAssistant(): React.JSX.Element {
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         className="ml-auto flex size-14 items-center justify-center rounded-full bg-[#0C486D] text-white shadow-lg shadow-[#0C486D]/30 transition-transform hover:scale-105 hover:bg-[#0a3b5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0C486D]"
-        aria-label={isOpen ? "Close chat" : "Open Minzo Assistant"}
+        aria-label={isOpen ? "Close chat" : "Open Ada"}
         aria-expanded={isOpen}
       >
         {isOpen ? (
