@@ -43,3 +43,22 @@ export interface PaginatedResult<T> {
     limit: number;
     totalPages: number;
 }
+
+export type CategoryId = "hospital" | "lab" | "pharmacy" | "mental-health" | "dental";
+
+export interface Business {
+    id: string;
+    name: string;
+    type: string;
+    category: CategoryId;
+    area: string;
+    rating: number;
+    reviews: number;
+    distanceKm: number;
+    lat: number;
+    lng: number;
+    opens: string;
+    closes: string;
+    image?: string;
+}
+export type BusinessWithDistance = Business & { distance: number };
