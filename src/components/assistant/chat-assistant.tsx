@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   Bot,
   MessageCircle,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import {
   FormEvent,
+  startTransition,
   useEffect,
   useRef,
   useState,
@@ -31,9 +33,17 @@ interface StreamEvent {
   name: string;
 }
 
+interface PersistedChatSession {
+  conversationId: string | null;
+  isOpen: boolean;
+  messages: ChatMessage[];
+}
+
+const chatSessionStorageKey = "minzo-ada-chat-session";
+
 const initialMessage: ChatMessage = {
   content:
-    "Hello, I'm Ada. I can help you find healthcare facilities, services, and public information in Liberia.",
+    "Hello, I'm **Ada**. I can help you find healthcare facilities, services, and public information in Liberia.",
   id: "welcome",
   isGreeting: true,
   role: "assistant",
@@ -84,11 +94,60 @@ function getErrorMessage(value: unknown): string {
   return "I could not answer right now. Please try again.";
 }
 
+function isChatMessage(value: unknown): value is ChatMessage {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "content" in value &&
+    "id" in value &&
+    "role" in value &&
+    typeof value.content === "string" &&
+    typeof value.id === "string" &&
+    (value.role === "assistant" || value.role === "user")
+  );
+}
+
+function readPersistedChatSession(value: string | null): PersistedChatSession | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      !("conversationId" in parsed) ||
+      !("isOpen" in parsed) ||
+      !("messages" in parsed) ||
+      !Array.isArray(parsed.messages) ||
+      !parsed.messages.every(isChatMessage) ||
+      (parsed.conversationId !== null && typeof parsed.conversationId !== "string") ||
+      typeof parsed.isOpen !== "boolean"
+    ) {
+      return null;
+    }
+
+    return {
+      conversationId: parsed.conversationId,
+      isOpen: parsed.isOpen,
+      messages: parsed.messages.map((message) => ({
+        ...message,
+        isStreaming: false,
+      })),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function ChatAssistant(): React.JSX.Element {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isSessionRestored, setIsSessionRestored] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([initialMessage]);
   const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -103,6 +162,42 @@ export function ChatAssistant(): React.JSX.Element {
   useEffect(() => {
     return () => abortControllerRef.current?.abort();
   }, []);
+
+  useEffect(() => {
+    const storedSession = readPersistedChatSession(
+      window.sessionStorage.getItem(chatSessionStorageKey),
+    );
+
+    startTransition(() => {
+      if (storedSession) {
+        setConversationId(storedSession.conversationId);
+        setIsOpen(storedSession.isOpen);
+        setMessages(storedSession.messages);
+      }
+
+      setIsSessionRestored(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isSessionRestored) {
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      chatSessionStorageKey,
+      JSON.stringify({
+        conversationId,
+        isOpen,
+        messages: messages.map(({ content, id, isGreeting, role }) => ({
+          content,
+          id,
+          isGreeting,
+          role,
+        })),
+      }),
+    );
+  }, [conversationId, isOpen, isSessionRestored, messages]);
 
   useEffect(() => {
     const input = messageInputRef.current;
@@ -377,6 +472,17 @@ export function ChatAssistant(): React.JSX.Element {
                   {message.content ? message.role === "assistant" ? (
                     <ReactMarkdown
                       components={{
+                        a: ({ children, href }) =>
+                          href?.startsWith("/") ? (
+                            <Link
+                              href={href}
+                              className="font-semibold text-[#00796B] underline decoration-2 underline-offset-2 transition-colors hover:text-[#0C486D]"
+                            >
+                              {children}
+                            </Link>
+                          ) : (
+                            <span>{children}</span>
+                          ),
                         ol: ({ children }) => (
                           <ol className="my-1 list-decimal space-y-2 pl-5">{children}</ol>
                         ),
