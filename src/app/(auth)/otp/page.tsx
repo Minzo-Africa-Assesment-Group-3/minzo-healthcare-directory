@@ -1,16 +1,18 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { notify } from '@/lib/toast';
+import { useAuthStore } from '@/store/auth-store';
 import AuthShell from '../auth-shell';
 
 const OTP_LENGTH = 4; // Figma shows 4 boxes but the copy says "6-digit": confirm and change here
-const RESEND_SECONDS = 30;
 
-export default function OtpVerificationForm() {
+function OtpVerificationForm() {
     const router = useRouter();
-    const email = useSearchParams().get('email');
+    const searchParams = useSearchParams();
+    const challengeId = searchParams.get('challengeId');
+    const setUser = useAuthStore((state) => state.setUser);
 
     const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''));
     const [error, setError] = useState<string | null>(null);
@@ -77,47 +79,37 @@ export default function OtpVerificationForm() {
         setIsVerifying(true);
         setError(null);
 
-        // Adjust endpoint/payload to your backend
+        if (!challengeId) {
+            setError('Your login session is missing. Please log in again.');
+            setIsVerifying(false);
+            return;
+        }
+
         const res = await fetch('/api/auth/verify-otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, code }),
+            body: JSON.stringify({ challengeId, otp: code }),
         });
         const data = await res.json().catch(() => ({}));
         setIsVerifying(false);
 
         if (!res.ok) {
-            setError(data.message ?? 'Incorrect code. Please enter the correct code');
+            setError(data.detail ?? data.message ?? 'Incorrect code. Please enter the correct code');
             return;
         }
 
-        notify.success('Verified successfully');
-        router.push(data.redirectTo ?? '/login');
+        setUser(data.user);
+        notify.success('You are now signed in.');
+        router.push(searchParams.get('from') ?? '/');
     };
 
     const handleResend = async () => {
         if (cooldown > 0 || isResending) return;
         setIsResending(true);
 
-        const res = await fetch('/api/auth/resend-otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
-        });
-
         setIsResending(false);
-
-        if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            notify.error(data.message ?? 'Could not resend the code. Try again.');
-            return;
-        }
-
-        notify.success('A new code has been sent');
-        setDigits(Array(OTP_LENGTH).fill(''));
-        setError(null);
-        setCooldown(RESEND_SECONDS);
-        inputs.current[0]?.focus();
+        notify.info('Please sign in again to receive a new verification code.');
+        router.push('/login');
     };
 
     return (
@@ -161,7 +153,7 @@ export default function OtpVerificationForm() {
                     role={error ? 'alert' : undefined}
                     className={`mt-6 text-center text-sm ${error ? 'text-red-600' : 'text-gray-500'}`}
                 >
-                    {error ?? 'This code expires in 10min'}
+                    {error ?? 'This code expires in 5 minutes'}
                 </p>
 
                 <button
@@ -189,5 +181,13 @@ export default function OtpVerificationForm() {
                 </p>
             </form>
         </AuthShell>
+    );
+}
+
+export default function OtpPage() {
+    return (
+        <Suspense fallback={<AuthShell title="Enter verification code" subtitle="Loading verification…"><div /></AuthShell>}>
+            <OtpVerificationForm />
+        </Suspense>
     );
 }

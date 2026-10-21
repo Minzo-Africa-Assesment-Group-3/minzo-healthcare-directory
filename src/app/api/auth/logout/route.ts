@@ -1,14 +1,21 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { apiClient } from '@/lib/api-client';
 import { SESSION_COOKIE, REFRESH_COOKIE } from '@/lib/session';
 
 export async function POST() {
+    const apiUrl = process.env.API_URL;
     const cookieStore = await cookies();
     const token = cookieStore.get(SESSION_COOKIE)?.value;
+    const refreshToken = cookieStore.get(REFRESH_COOKIE)?.value;
 
-    if (token) {
-        await apiClient.post('/api/v1/auth/logout', undefined, token).catch(() => { });
+    if (apiUrl && (token || refreshToken)) {
+        await fetch(`${apiUrl}/api/v1/auth/logout`, {
+            method: 'POST',
+            headers: {
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                ...(refreshToken ? { Cookie: `${REFRESH_COOKIE}=${refreshToken}` } : {}),
+            },
+        }).catch(() => { });
     }
 
     const response = NextResponse.json({ success: true });

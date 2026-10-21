@@ -7,7 +7,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
-import { useAuthStore } from '@/store/auth-store';
 import { notify } from '@/lib/toast';
 import AuthShell from '../auth-shell';
 
@@ -24,7 +23,6 @@ const inputClass =
 export default function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const setUser = useAuthStore((state) => state.setUser);
     const [serverError, setServerError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -37,7 +35,7 @@ export default function LoginForm() {
     const onSubmit = async (values: LoginFormValues) => {
         setServerError(null);
 
-        const res = await fetch('/api/v1/auth/login', {
+        const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -47,16 +45,27 @@ export default function LoginForm() {
         const data = await res.json();
 
         if (!res.ok) {
-            const message = data.message ?? 'Invalid email or password';
+            const message = data.detail ?? data.message ?? 'Invalid email or password';
             setServerError(message);
             notify.error(message);
             return;
         }
 
-        setUser(data.user);
-        const redirectTo = searchParams.get('from') ?? '/otp?email=solomonakpas@gmail.com';
-        notify.success(`Welcome back, ${data.user.fullName}`);
-        router.push(redirectTo);
+        const challengeId = data.challengeId as string | undefined;
+        if (!challengeId) {
+            setServerError('The login service did not return a verification challenge.');
+            return;
+        }
+
+        const returnTo = searchParams.get('from');
+        const otpParameters = new URLSearchParams({
+            challengeId,
+            email: data.maskedEmail ?? values.email,
+        });
+        if (returnTo) otpParameters.set('from', returnTo);
+
+        notify.success('A verification code has been sent to your email.');
+        router.push(`/otp?${otpParameters.toString()}`);
         router.refresh();
     };
 

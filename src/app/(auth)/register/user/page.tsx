@@ -42,7 +42,7 @@ export default function CareSignupForm() {
     const onSubmit = async (values: SignupValues) => {
         setServerError(null);
 
-        const res = await fetch('/api/v1/auth/register/user', {
+        const res = await fetch('/api/proxy/api/v1/auth/register/user', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(values),
@@ -51,7 +51,7 @@ export default function CareSignupForm() {
         const data = await res.json();
 
         if (!res.ok) {
-            const message = data.message ?? 'Could not create your account. Try again.';
+            const message = data.detail ?? data.message ?? 'Could not create your account. Try again.';
             setServerError(message);
             notify.error(message);
             return;

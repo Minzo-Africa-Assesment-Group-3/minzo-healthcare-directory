@@ -22,7 +22,7 @@ async function forward(request: NextRequest, pathSegments: string[]) {
 
     const contentType = backendResponse.headers.get('content-type') ?? '';
 
-    // File exports (Excel/PDF) return binary — stream those through as-is
+
     if (!contentType.includes('application/json')) {
         const buffer = await backendResponse.arrayBuffer();
         return new NextResponse(buffer, {

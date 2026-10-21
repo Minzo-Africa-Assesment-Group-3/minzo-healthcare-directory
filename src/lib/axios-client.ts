@@ -34,7 +34,7 @@ api.interceptors.response.use(
 
       const refreshed = await attemptRefresh();
       if (refreshed) {
-        return api(originalRequest); // retry the original request once, with the new cookie now set
+        return api(originalRequest);
       }
 
       await fetch('/api/auth/logout', { method: 'POST' }).catch(() => { });
