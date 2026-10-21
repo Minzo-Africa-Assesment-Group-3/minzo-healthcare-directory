@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
 import { notify } from '@/lib/toast';
 import AuthShell from '../../auth-shell';
+import { usersService } from '@/services/users.service';
 
 const signupSchema = z.object({
     displayName: z.string().trim().min(2, 'Enter your full name'),
@@ -16,7 +17,7 @@ const signupSchema = z.object({
         .string()
         .min(1, 'Phone number is required')
         .regex(/^\+?[\d\s-]{7,15}$/, 'Enter a valid phone number'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
+    password: z.string().min(12, 'Password must be at least 12 characters'),
 });
 
 type SignupValues = z.infer<typeof signupSchema>;
@@ -42,22 +43,12 @@ export default function CareSignupForm() {
     const onSubmit = async (values: SignupValues) => {
         setServerError(null);
 
-        const res = await fetch('/api/proxy/api/v1/auth/register/user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(values),
-        });
+        const res = await usersService.create(values)
 
-        const data = await res.json();
+        const message = res.detail ?? res.message ?? 'Could not create your account. Try again.';
 
-        if (!res.ok) {
-            const message = data.detail ?? data.message ?? 'Could not create your account. Try again.';
-            setServerError(message);
-            notify.error(message);
-            return;
-        }
-
-        router.push(`/register/verify-email?email=${encodeURIComponent(values.email)}&type=email`);
+        notify.success(message);
+        router.push(`/register/resend-email?email=${encodeURIComponent(values.email)}&type=email`);
     };
 
     return (

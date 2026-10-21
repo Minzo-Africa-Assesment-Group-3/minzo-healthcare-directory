@@ -1,0 +1,44 @@
+'use client';
+
+import { useState } from 'react';
+import Navbar from '../components/navbar';
+import ProfileSidebar from '../components/user-profile-sidebar';
+import PersonalDetails from '../components/personal-details-sections';
+import PasswordSection from '../user-password/page';
+import FollowedBusinesses from '../user-followed/page';
+import MyReviews from '../user-reviews/page';
+import DeleteAccount from '../user-delete/page';
+import type { SectionId } from '../components/user-sections';
+
+const SECTION_VIEWS: Record<SectionId, () => React.JSX.Element> = {
+    personal: PersonalDetails,
+    password: PasswordSection,
+    followed: FollowedBusinesses,
+    reviews: MyReviews,
+    delete: DeleteAccount,
+};
+
+export default function ProfilePage() {
+    const [active, setActive] = useState<SectionId>('personal');
+    const ActiveSection = SECTION_VIEWS[active];
+
+    return (
+        <div className="min-h-screen bg-[#F4F4F4]">
+            <Navbar />
+
+            <main className="mx-auto max-w-336 px-6 pb-20 pt-8">
+                <h1 className="font-(family-name:--font-roboto-slab) text-4xl font-semibold text-gray-950">
+                    My profile
+                </h1>
+                <p className="mt-1 text-sm text-gray-900">
+                    Manage your details, the businesses you follow and the reviews you’ve written.
+                </p>
+
+                <div className="mt-8 grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+                    <ProfileSidebar active={active} onChange={setActive} />
+                    <ActiveSection />
+                </div>
+            </main>
+        </div>
+    );
+}

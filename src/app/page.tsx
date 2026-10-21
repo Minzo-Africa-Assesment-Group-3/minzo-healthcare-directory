@@ -10,13 +10,6 @@ import AudienceSection from '../components/landing/audience-section';
 import ClearInfoSection from '../components/landing/clear-info-section';
 import Footer from '../components/landing/footer';
 
-// const fraunces = Fraunces({
-//   subsets: ['latin'],
-//   weight: ['500', '600'],
-//   style: ['normal', 'italic'],
-//   variable: '--font-fraunces',
-// });
-
 export default function Home(): React.JSX.Element {
   return (
     <div className="font-(family-name:--font-roboto-slab)">

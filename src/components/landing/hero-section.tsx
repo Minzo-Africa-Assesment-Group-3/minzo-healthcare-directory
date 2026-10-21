@@ -12,7 +12,6 @@ export default function HeroSection() {
                 sizes="100vw"
                 className="-z-20 object-cover"
             />
-            {/* Contrast layer: deep navy wash so white text always clears WCAG AA, whatever the photo */}
             <div
                 aria-hidden
                 className="absolute inset-0 -z-10 bg-linear-to-b from-[#0C486D]/90 via-[#0C486D]/80 to-[#0C486D]/90 md:bg-linear-to-r md:from-[#0C486D]/95 md:via-[#0C486D]/80 md:to-[#0C486D]/60"
@@ -34,7 +33,7 @@ export default function HeroSection() {
                         Discover trusted healthcare professionals, hospitals, pharmacies and diagnostic services around you.
                     </p>
 
-                    <form action="/directory" role="search" className="mt-8 w-full max-w-xl">
+                    <form action="/listings" role="search" className="mt-8 w-full max-w-xl">
                         <label htmlFor="hero-search" className="sr-only">
                             Search doctors, hospitals, pharmacies
                         </label>

@@ -1,4 +1,4 @@
-export default function Loading() {
+export default function Loading({ message }: { message: string }) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-white">
             <div className="flex flex-col items-center gap-5">
@@ -27,7 +27,7 @@ export default function Loading() {
                 {/* Text */}
                 <div className="text-center">
                     <p className="text-sm font-semibold text-gray-800">
-                        Loading
+                        {message || 'Loading'}
                     </p>
 
                     <p className="mt-1 text-xs text-gray-500">

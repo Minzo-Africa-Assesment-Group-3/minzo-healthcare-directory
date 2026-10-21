@@ -36,10 +36,10 @@ const columns = [
 
 // Replace the hrefs with Minzo's real profiles
 const socials = [
-    { label: 'Facebook', href: '#', icon: FaFacebook },
-    { label: 'Instagram', href: '#', icon: RiInstagramFill },
-    { label: 'X', href: '#', icon: FaXTwitter },
-    { label: 'LinkedIn', href: '#', icon: TbBrandLinkedinFilled },
+    { label: 'Facebook', href: 'https://www.facebook.com/share/1DYBQPY7gS/', icon: FaFacebook },
+    { label: 'Instagram', href: 'https://www.instagram.com/minzoafrica', icon: RiInstagramFill },
+    // { label: 'X', href: '#', icon: FaXTwitter },
+    // { label: 'LinkedIn', href: '#', icon: TbBrandLinkedinFilled },
 ];
 
 export default function Footer() {
@@ -60,6 +60,7 @@ export default function Footer() {
                                     <a
                                         href={href}
                                         aria-label={label}
+                                        target='_blank'
                                         className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0C486D] text-white transition-colors hover:bg-[#0a3b5a]"
                                     >
                                         <Icon className="h-3.5 w-3.5" aria-hidden />

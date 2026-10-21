@@ -10,20 +10,25 @@ export interface AppUser {
     isActive: boolean;
     lastLoginAt: string | null;
     createdAt: string;
+    message?: string;
+    detail?: string;
 }
 
 export interface CreateUserDto {
-    username: string;
-    password: string;
-    fullName: string;
     email?: string;
-    roles: UserRole[];
+    password: string;
+    displayName: string;
+    phone: string;
 }
 
 export const usersService = {
     getAll: () => api.get<AppUser[]>('/users').then((r) => r.data),
 
-    create: (dto: CreateUserDto) => api.post<AppUser>('/users', dto).then((r) => r.data),
+    create: (dto: CreateUserDto) => api.post<AppUser>('/register/user', dto).then((r) => r.data),
+
+    resendEmail: (dto: {email: string}) => api.post<AppUser>('/resend-verification', dto).then((r) => r.data),
+
+    verifyEmail: (dto: {token: string}) => api.post<AppUser>('/verify-email', dto).then((r) => r.data),
 
     deactivate: (id: string) => api.patch<AppUser>(`/users/${id}/deactivate`).then((r) => r.data),
 

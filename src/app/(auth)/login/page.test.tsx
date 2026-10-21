@@ -45,7 +45,7 @@ describe('LoginPage', () => {
         await user.type(screen.getByLabelText('Password'), 'password');
         await user.click(screen.getByRole('button', { name: /log in/i }));
 
-        await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/otp?email=solomonakpas@gmail.com'));
+        await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/otp'));
         expect(global.fetch).toHaveBeenCalledWith(
             '/api/v1/auth/login',
             expect.objectContaining({ method: 'POST' }),
