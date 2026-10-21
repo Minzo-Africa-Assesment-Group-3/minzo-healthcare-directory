@@ -14,6 +14,7 @@ import {
   useRef,
   useState,
 } from "react";
+import ReactMarkdown from "react-markdown";
 
 type ChatRole = "assistant" | "user";
 
@@ -373,7 +374,24 @@ export function ChatAssistant(): React.JSX.Element {
                         }`
                   }`}
                 >
-                  {message.content || (
+                  {message.content ? message.role === "assistant" ? (
+                    <ReactMarkdown
+                      components={{
+                        ol: ({ children }) => (
+                          <ol className="my-1 list-decimal space-y-2 pl-5">{children}</ol>
+                        ),
+                        p: ({ children }) => <p className="my-1 first:mt-0 last:mb-0">{children}</p>,
+                        strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
+                        ul: ({ children }) => (
+                          <ul className="my-1 list-disc space-y-2 pl-5">{children}</ul>
+                        ),
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  ) : (
+                    message.content
+                  ) : (
                     <span className="inline-flex gap-1 py-1" aria-label="Assistant is typing">
                       <span className="size-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]" />
                       <span className="size-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]" />
