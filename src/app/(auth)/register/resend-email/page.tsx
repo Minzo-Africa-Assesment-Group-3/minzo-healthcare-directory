@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { notify } from '@/lib/toast';
 import AuthShell from '../../auth-shell';
 import { usersService } from '@/services/users.service';
+import Loading from '@/components/Loading';
 
 const RESEND_SECONDS = 5;
 
@@ -13,6 +14,14 @@ const formatTime = (s: number) =>
     `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
 export default function ResendEmail() {
+    return (
+        <Suspense fallback={<Loading message="Loading email verification" />}>
+            <ResendEmailContent />
+        </Suspense>
+    );
+}
+
+function ResendEmailContent() {
     const router = useRouter();
     const email = useSearchParams().get('email');
 

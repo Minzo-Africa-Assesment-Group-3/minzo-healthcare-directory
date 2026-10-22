@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AuthShell from '../../auth-shell';
 import { usersService } from '@/services/users.service';
@@ -20,6 +20,14 @@ const getErrorMessage = (err: unknown): string => {
 };
 
 export default function VerifyEmail() {
+    return (
+        <Suspense fallback={<Loading message="Loading email verification" />}>
+            <VerifyEmailContent />
+        </Suspense>
+    );
+}
+
+function VerifyEmailContent() {
     const router = useRouter();
     const token = useSearchParams().get('token');
 
