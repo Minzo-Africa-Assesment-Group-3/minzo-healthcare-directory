@@ -59,7 +59,11 @@ export function CreateUserDialog() {
     });
 
     const onSubmit = (values: CreateUserValues) => {
-        mutate({ ...values, email: values.email || undefined });
+        mutate({
+            displayName: values.fullName,
+            email: values.email || undefined,
+            password: values.password,
+        });
     };
 
     return (

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useForm, type UseFormRegisterReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -69,7 +69,6 @@ function PasswordField({
 
 export default function ResetPasswordForm() {
     const router = useRouter();
-    const token = useSearchParams().get('token');
     const [serverError, setServerError] = useState<string | null>(null);
 
     const {

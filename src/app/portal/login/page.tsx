@@ -4,7 +4,7 @@ import Loading from '@/components/Loading';
 
 export default function LoginPage() {
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<Loading message="Loading portal login page" />}>
             <PortalLoginForm />
         </Suspense>
     );

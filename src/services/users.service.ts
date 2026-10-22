@@ -18,7 +18,7 @@ export interface CreateUserDto {
     email?: string;
     password: string;
     displayName: string;
-    phone: string;
+    phone?: string;
 }
 
 export const usersService = {
