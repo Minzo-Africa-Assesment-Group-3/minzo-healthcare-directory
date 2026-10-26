@@ -2,16 +2,22 @@
 
 import { useState } from "react"
 
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-
 import { useCreateAdminRoleMutation } from "../../api"
-import { AdminButton } from "../ui"
+import { AdminTextField, AdminTextareaField } from "../forms"
+import { AdminButton, AdminModal } from "../ui"
 
 interface CreateRoleDialogProps {
   onOpenChange: (open: boolean) => void
   open: boolean
+}
+
+function formatRoleName(value: string): string {
+  return value
+    .trimStart()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_/, "")
 }
 
 export function CreateRoleDialog({ onOpenChange, open }: CreateRoleDialogProps) {
@@ -28,5 +34,5 @@ export function CreateRoleDialog({ onOpenChange, open }: CreateRoleDialogProps) 
     onOpenChange(false)
   }
 
-  return <Dialog onOpenChange={onOpenChange} open={open}><DialogContent><DialogHeader><DialogTitle>Create role</DialogTitle><DialogDescription>Create a role first, then assign its permissions from the role table.</DialogDescription></DialogHeader><form className="space-y-4" onSubmit={(event) => void submit(event)}><label className="block space-y-1.5"><span className="text-sm font-medium">Role name</span><Input onChange={(event) => setName(event.target.value)} required value={name} /></label><label className="block space-y-1.5"><span className="text-sm font-medium">Description</span><Textarea onChange={(event) => setDescription(event.target.value)} value={description} /></label>{errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}<DialogFooter><DialogClose render={<AdminButton size="compact" type="button" variant="outline" />}>Cancel</DialogClose><AdminButton disabled={createRoleMutation.isPending} size="compact" type="submit">{createRoleMutation.isPending ? "Creating…" : "Create role"}</AdminButton></DialogFooter></form></DialogContent></Dialog>
+  return <AdminModal description="Create a role first, then assign its permissions from the role table." footer={<><AdminButton onClick={() => onOpenChange(false)} size="compact" type="button" variant="outline">Cancel</AdminButton><AdminButton disabled={createRoleMutation.isPending} form="create-role-form" size="compact" type="submit">{createRoleMutation.isPending ? "Creating…" : "Create role"}</AdminButton></>} onOpenChange={onOpenChange} open={open} title="Create role"><form className="space-y-4" id="create-role-form" onSubmit={(event) => void submit(event)}><AdminTextField description="The name is formatted automatically, for example: CONTENT_MODERATOR." label="Role name" onChange={(event) => setName(formatRoleName(event.target.value))} required value={name} /><AdminTextareaField label="Description" onChange={(event) => setDescription(event.target.value)} value={description} />{errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}</form></AdminModal>
 }

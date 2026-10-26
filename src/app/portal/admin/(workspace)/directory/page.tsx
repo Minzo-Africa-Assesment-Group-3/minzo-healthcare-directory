@@ -9,12 +9,24 @@ import { AdminButton } from "../../components/ui"
 import { AdminDataTable } from "../../components/data-table"
 
 const countyColumns: ColumnDef<AdminCounty>[] = [
+  {
+    accessorKey: "id",
+    header: "#",
+    cell: ({ row }) => (
+      <span className="text-sm text-[#757575]">{row?.index + 1}</span>
+    ),
+  },
   { accessorKey: "name", header: "County" },
   { accessorKey: "slug", header: "Slug" },
   { accessorKey: "isActive", header: "Status", cell: ({ row }) => row.original.isActive ? "Active" : "Inactive" }
 ]
 
 const cityColumns: ColumnDef<AdminCity>[] = [
+  {
+    accessorKey: "id", header: "#", cell: ({ row }) => (
+      <span className="text-sm text-[#757575]">{row?.index + 1}</span>
+    )
+  },
   { accessorKey: "name", header: "City or town" },
   { accessorKey: "slug", header: "Slug" },
   { accessorKey: "countyId", header: "County ID" },
