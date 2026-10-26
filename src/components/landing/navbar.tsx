@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
+import { AppUser } from '@/services/users.service';
 
 const navLinks = [
     { label: 'Home', href: '/' },
@@ -22,10 +23,9 @@ function Brand() {
     );
 }
 
-export default function Navbar() {
+export default function Navbar({ user }: { user?: AppUser | null }) {
     const [open, setOpen] = useState(false);
 
-    // Lock page scroll while the mobile menu is open; close on Esc or when resizing to desktop
     useEffect(() => {
         document.body.style.overflow = open ? 'hidden' : '';
         const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
@@ -58,20 +58,37 @@ export default function Navbar() {
                 </nav>
 
                 {/* Desktop actions */}
-                <div className="hidden items-center gap-3 md:flex">
-                    <Link
-                        href="/login"
-                        className="rounded-full bg-[#E8EDF1] px-6 py-2.5 text-sm font-medium text-[#0C486D] transition-colors hover:bg-[#dbe3e9]"
-                    >
-                        Sign in
+                {user ? (
+                    <Link href="/user-details" className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            aria-label="Account menu"
+                            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#E3EBF1] text-[#0C486D]"
+                        >
+                            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                                <circle cx="12" cy="8" r="4.5" />
+                                <path d="M3.5 21c0-4.6 3.8-7 8.5-7s8.5 2.4 8.5 7z" />
+                            </svg>
+                        </button>
+
+                        <span>{user?.displayName}</span>
                     </Link>
-                    <Link
-                        href="/account-type"
-                        className="rounded-full bg-[#0C486D] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0a3b5a]"
-                    >
-                        Get started
-                    </Link>
-                </div>
+                ) : (
+                    <div className="hidden items-center gap-3 md:flex">
+                        <Link
+                            href="/login"
+                            className="rounded-full bg-[#E8EDF1] px-6 py-2.5 text-sm font-medium text-[#0C486D] transition-colors hover:bg-[#dbe3e9]"
+                        >
+                            Sign in
+                        </Link>
+                        <Link
+                            href="/account-type"
+                            className="rounded-full bg-[#0C486D] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0a3b5a]"
+                        >
+                            Get started
+                        </Link>
+                    </div>
+                )}
 
                 {/* Mobile trigger */}
                 <button

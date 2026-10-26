@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Roboto_Serif } from 'next/font/google';
-import Navbar from '@/components/landing/navbar';
+// import Navbar from '@/components/landing/navbar';
 import { DEFAULT_PAGE_SIZE } from '@/services/business.service';
 import { useBusinesses } from './use-business';
 import { CATEGORIES, type CategoryId } from './categories';
@@ -11,6 +11,7 @@ import SearchBar, { type SearchValues } from './search-bar';
 import LocationBanner, { type GeoStatus } from './location-banner';
 import BusinessList from './business-list';
 import { Suspense } from 'react';
+import Navbar from '@/app/(user-dashboard)/components/navbar';
 
 const font = Roboto_Serif({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
@@ -71,7 +72,7 @@ export default function ListingPage() {
 
     return (
         <div className={`${font.className} min-h-dvh bg-white text-gray-900 font-(family-name:--font-roboto-slab)`}>
-            <Navbar />
+            {/* <Navbar /> */}
 
             <Suspense fallback={<div className="py-4" />}>
                 <SearchBar
