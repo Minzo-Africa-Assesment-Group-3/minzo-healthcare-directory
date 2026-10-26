@@ -2,7 +2,7 @@
 
 import { useFormContext } from 'react-hook-form';
 import { ArrowRight, PlusCircle } from 'lucide-react';
-import { DAYS, FACILITY_TYPES, STAFF_ROLES, TIMEZONES, type BusinessFormValues } from './business-schema';
+import { DAYS, FACILITY_TYPES, PROFESSIONS, TIMEZONES, type BusinessFormValues } from './business-schema';
 import { outlineBtn, slab } from './wizard-ui';
 
 const labelOf = (opts: { value: string; label: string }[], v: string) => opts.find((o) => o.value === v)?.label;
@@ -30,7 +30,7 @@ function Item({ label, value, empty = 'Not provided' }: { label: string; value?:
     return (
         <div>
             <dt className="text-xs text-gray-500">{label}</dt>
-            <dd className={`mt-0.5 break-words text-sm ${value ? 'font-semibold text-gray-950' : 'font-medium text-gray-700'}`}>
+            <dd className={`mt-0.5 wrap-break-word text-sm ${value ? 'font-semibold text-gray-950' : 'font-medium text-gray-700'}`}>
                 {value || empty}
             </dd>
         </div>
@@ -42,12 +42,14 @@ const pill = 'rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs t
 export default function StepReview({ goTo }: { goTo: (step: number) => void }) {
     const { watch } = useFormContext<BusinessFormValues>();
     const v = watch();
-    const staff = v.staffMembers.filter((s) => s.fullName);
+    const staff = v.staffMembers.filter((s) => s.displayName.trim());
 
     return (
         <div className="space-y-4">
             <Card title="Business Details" onEdit={() => goTo(0)}>
                 <Item label="Business name" value={v.businessName} />
+                <Item label="Legal name" value={v.legalName || v.businessName} />
+                <Item label="Registration number" value={v.registrationNumber} />
                 <Item label="Facility type" value={labelOf(FACILITY_TYPES, v.facilityType)} empty="Not selected" />
                 <Item label="Description" value={v.description} />
             </Card>
@@ -76,6 +78,8 @@ export default function StepReview({ goTo }: { goTo: (step: number) => void }) {
                                 <span className="w-10 shrink-0 font-semibold text-gray-950">{d.short}</span>
                                 {h?.closed ? (
                                     <span className={`${pill} text-gray-500`}>Closed</span>
+                                ) : h?.is24Hours ? (
+                                    <span className={pill}>Open 24 hours</span>
                                 ) : (
                                     <>
                                         <span className={pill}>{h?.opensAt}</span>
@@ -108,11 +112,13 @@ export default function StepReview({ goTo }: { goTo: (step: number) => void }) {
 
             <Card title="Staff members" onEdit={() => goTo(5)}>
                 {staff.length ? (
-                    <ul className="space-y-2">
+                    <ul className="space-y-2.5">
                         {staff.map((s, i) => (
-                            <li key={i} className="text-sm font-semibold text-gray-950">
-                                {s.fullName}
-                                <span className="font-normal text-gray-600"> · {labelOf(STAFF_ROLES, s.role)}</span>
+                            <li key={i} className="text-sm">
+                                <span className="font-semibold text-gray-950">{s.displayName}</span>
+                                <span className="text-gray-600"> · {labelOf(PROFESSIONS, s.profession) ?? 'No profession'}</span>
+                                {s.professionalTitle && <span className="block text-xs text-gray-500">{s.professionalTitle}</span>}
+                                <span className="block text-xs text-gray-500">{s.isPublic ? 'Shown on public profile' : 'Not shown publicly'}</span>
                             </li>
                         ))}
                     </ul>
@@ -125,11 +131,10 @@ export default function StepReview({ goTo }: { goTo: (step: number) => void }) {
                 </button>
             </Card>
 
-            <Card title="Final representative" onEdit={() => goTo(6)}>
+            <Card title="Personal details" onEdit={() => goTo(6)}>
                 <Item label="Full name" value={v.fullName} />
                 <Item label="Email address" value={v.email} />
                 <Item label="Phone number" value={v.phone} />
-                <Item label="Registration document" value={v.document?.name} empty="No file uploaded" />
             </Card>
         </div>
     );

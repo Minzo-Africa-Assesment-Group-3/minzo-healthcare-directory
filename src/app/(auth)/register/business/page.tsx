@@ -1,13 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FormProvider, useForm, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { notify } from '@/lib/toast';
 import AuthShell from '../../auth-shell';
-import { STEP_FIELDS, buildPayload, businessSchema, defaultValues, type BusinessFormValues } from './components/business-schema';
+import { authService, parseApiError, type ApiFailure } from '@/services/business-reg.service';
+import {
+    API_FIELD_TO_FORM,
+    STEP_FIELDS,
+    buildPayload,
+    businessSchema,
+    defaultValues,
+    type BusinessFormValues,
+} from './components/business-schema';
 import { StepHeader, primaryBtn, secondaryBtn } from './components/wizard-ui';
 import StepBusiness from './components/step-business';
 import StepContact from './components/step-contact';
@@ -31,26 +39,44 @@ const STEP_TITLES = [
 const REVIEW = 7;
 const PASSWORD = 8;
 
+const stepOf = (field: keyof BusinessFormValues) => STEP_FIELDS.findIndex((fields) => fields.includes(field));
+
 export default function BusinessRegistrationWizard() {
     const router = useRouter();
     const [step, setStep] = useState(0);
     const [serverError, setServerError] = useState<string | null>(null);
+    const submitting = useRef(false); // blocks double submits (Enter + click, slow networks)
+    const submitted = useRef(false);
 
     const methods = useForm<BusinessFormValues>({
         resolver: zodResolver(businessSchema),
         defaultValues,
         mode: 'onTouched',
     });
-    const { isSubmitting } = methods.formState;
+    const { isSubmitting, isDirty } = methods.formState;
+
+    // Warn before a refresh / tab close throws away a half-filled form
+    useEffect(() => {
+        if (!isDirty) return;
+        const warn = (e: BeforeUnloadEvent) => {
+            if (submitted.current) return;
+            e.preventDefault();
+            e.returnValue = '';
+        };
+        window.addEventListener('beforeunload', warn);
+        return () => window.removeEventListener('beforeunload', warn);
+    }, [isDirty]);
 
     const go = (n: number) => {
         setStep(n);
         window.scrollTo({ top: 0 });
+        document.getElementById('auth-main')?.scrollTo({ top: 0 }); // desktop: only the right panel scrolls
+        requestAnimationFrame(() => document.getElementById('step-heading')?.focus({ preventScroll: true }));
     };
 
     const next = async () => {
         if (step < REVIEW) {
-            const ok = await methods.trigger(STEP_FIELDS[step]);
+            const ok = await methods.trigger(STEP_FIELDS[step], { shouldFocus: true });
             if (!ok) return;
         }
         go(step + 1);
@@ -63,25 +89,53 @@ export default function BusinessRegistrationWizard() {
         notify.error('Please fix the highlighted fields');
     };
 
-    const submit = async (values: BusinessFormValues) => {
-        setServerError(null);
+    // Put the API's complaint next to the field it's about
+    const applyFailure = ({ status, message, fieldErrors }: ApiFailure) => {
+        let target = -1;
+        const flag = (field: keyof BusinessFormValues, msg: string) => {
+            methods.setError(field, { type: 'server', message: msg });
+            const s = stepOf(field);
+            if (s >= 0 && (target === -1 || s < target)) target = s;
+        };
 
-        // Adjust endpoint/format to your backend: JSON `payload` + the document as multipart
-        const body = new FormData();
-        body.append('payload', JSON.stringify(buildPayload(values)));
-        if (values.document) body.append('registrationDocument', values.document);
+        Object.entries(fieldErrors).forEach(([key, msg]) => {
+            const field = API_FIELD_TO_FORM[key];
+            if (field) flag(field, msg);
+        });
 
-        const res = await fetch('/api/auth/register-business', { method: 'POST', body });
-        const data = await res.json().catch(() => ({}));
+        // Conflict without field details (e.g. "email already registered")
+        if (target === -1 && status === 409) {
+            const m = message.toLowerCase();
+            if (m.includes('email')) flag('email', message);
+            else if (m.includes('registration')) flag('registrationNumber', message);
+        }
 
-        if (!res.ok) {
-            const message = data.message ?? 'Could not create your account. Try again.';
+        if (target >= 0) {
+            go(target);
+            notify.error('Please check the highlighted field');
+        } else {
             setServerError(message);
             notify.error(message);
+        }
+    };
+
+    const submit = async (values: BusinessFormValues) => {
+        if (submitting.current) return;
+        submitting.current = true;
+        setServerError(null);
+
+        try {
+            await authService.registerBusiness(buildPayload(values));
+        } catch (err) {
+            submitting.current = false;
+            applyFailure(parseApiError(err));
             return;
         }
 
-        router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
+        submitted.current = true;
+        const email = values.email.trim().toLowerCase();
+        methods.reset(defaultValues); // wipe the password and personal details from memory
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     };
 
     const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -100,9 +154,10 @@ export default function BusinessRegistrationWizard() {
                     ? 'Create a secure password to protect your account.'
                     : 'One account for searching, reviewing and following'
             }
+            onBack={step > 0 ? () => go(step - 1) : undefined}
         >
             <FormProvider {...methods}>
-                <form onSubmit={onFormSubmit} noValidate>
+                <form onSubmit={onFormSubmit} noValidate autoComplete="off">
                     {!isPassword && (
                         <StepHeader
                             title={step === REVIEW ? 'Review details' : STEP_TITLES[step]}
@@ -139,7 +194,7 @@ export default function BusinessRegistrationWizard() {
                         )}
 
                         {isPassword && (
-                            <button type="submit" disabled={isSubmitting} className={`${primaryBtn} w-full`}>
+                            <button type="submit" disabled={isSubmitting} aria-busy={isSubmitting} className={`${primaryBtn} w-full`}>
                                 {isSubmitting ? 'Creating account…' : 'Create account'}
                             </button>
                         )}

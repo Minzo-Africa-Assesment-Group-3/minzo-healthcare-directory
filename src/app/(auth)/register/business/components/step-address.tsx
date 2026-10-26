@@ -1,11 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { MapPin } from 'lucide-react';
 import { notify } from '@/lib/toast';
-import { CITIES_BY_COUNTY, COUNTIES, TIMEZONES, type BusinessFormValues } from './business-schema';
+import { TIMEZONES, type BusinessFormValues } from './business-schema';
 import { Field, SelectInput, inputClass, outlineBtn } from './wizard-ui';
+import { authService } from '@/services/business-reg.service';
+
+interface County {
+    id: string;
+    name: string;
+    slug: string;
+}
+
+interface City {
+    id: string;
+    countyId: string;
+    name: string;
+    slug: string;
+}
 
 export default function StepAddress() {
     const {
@@ -14,10 +28,64 @@ export default function StepAddress() {
         watch,
         formState: { errors },
     } = useFormContext<BusinessFormValues>();
+    
     const [locating, setLocating] = useState(false);
+    const [counties, setCounties] = useState<{ value: string; label: string }[]>([]);
+    const [cities, setCities] = useState<{ value: string; label: string }[]>([]);
+    const [loadingCounties, setLoadingCounties] = useState(false);
+    const [loadingCities, setLoadingCities] = useState(false);
 
     const county = watch('county');
-    const cities = (CITIES_BY_COUNTY[county] ?? []).map((c) => ({ value: c, label: c }));
+
+    // Fetch Counties on component mount
+    useEffect(() => {
+        const fetchCounties = async () => {
+            setLoadingCounties(true);
+            try {
+                const res = await authService.getCounties();
+                const data = (res as unknown as County[]) || [];
+                const formattedCounties = data.map((c) => ({
+                    value: c.id,
+                    label: c.name,
+                }));
+                setCounties(formattedCounties);
+            } catch (error) {
+                console.error(error);
+                notify.error('Failed to load counties');
+            } finally {
+                setLoadingCounties(false);
+            }
+        };
+
+        fetchCounties();
+    }, []);
+
+    // Fetch Cities whenever the selected county changes
+    useEffect(() => {
+        if (!county) return;
+
+        const fetchCitiesByCounty = async (countyId: string) => {
+            setLoadingCities(true);
+            try {
+                const res = await authService.getCities(countyId);
+                console.log(res)
+                const data = (res as unknown as City[]) || [];
+                const formattedCities = data.map((c) => ({
+                    value: c.name, // Change to c.id if your backend expects city IDs
+                    label: c.name,
+                }));
+                setCities(formattedCities);
+            } catch (error) {
+                console.error(error);
+                notify.error('Failed to load cities');
+                setCities([]);
+            } finally {
+                setLoadingCities(false);
+            }
+        };
+
+        fetchCitiesByCounty(county);
+    }, [county]);
 
     const useCurrentLocation = () => {
         if (!navigator.geolocation) {
@@ -46,16 +114,22 @@ export default function StepAddress() {
                 <Field label="County" htmlFor="county" error={errors.county?.message}>
                     <SelectInput
                         id="county"
-                        options={COUNTIES}
+                        options={counties}
+                        disabled={loadingCounties}
                         invalid={!!errors.county}
-                        {...register('county', { onChange: () => setValue('city', '') })}
+                        {...register('county', { 
+                            onChange: () => {
+                                setValue('city', '');
+                                setCities([]);
+                            } 
+                        })}
                     />
                 </Field>
                 <Field label="City" htmlFor="city" error={errors.city?.message}>
                     <SelectInput
                         id="city"
                         options={cities}
-                        disabled={!county}
+                        disabled={!county || loadingCities}
                         invalid={!!errors.city}
                         {...register('city')}
                     />

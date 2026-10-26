@@ -17,7 +17,7 @@ type AuthShellProps = {
 export default function AuthShell({
     title,
     subtitle,
-    imageSrc = '/auth/nurse.jpg',
+    imageSrc = '/auth/nurse2.png',
     showBack = true,
     onBack,
     hero,

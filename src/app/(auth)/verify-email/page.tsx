@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { notify } from '@/lib/toast';
+// import { notify } from '@/lib/toast';
 import AuthShell from '../auth-shell';
 import Loading from '@/components/Loading';
 

@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Field, SectionCard } from '../components/ui';
-
-const INITIAL = { fullName: 'John Doe', email: 'johndoe@gmail.com', phone: '08082234567' };
+import { useMemberAuth } from '@/hooks/use-member-auth';
 
 const initials = (name: string) =>
     name
@@ -14,8 +13,34 @@ const initials = (name: string) =>
         .join('') || '?';
 
 export default function PersonalDetails() {
-    const [saved, setSaved] = useState(INITIAL);
-    const [form, setForm] = useState(INITIAL);
+    const { member } = useMemberAuth();
+
+    const [saved, setSaved] = useState({
+        fullName: '',
+        email: '',
+        phone: ''
+    });
+    const [form, setForm] = useState({
+        fullName: '',
+        email: '',
+        phone: ''
+    });
+
+    useEffect(() => {
+        if (!member) return;
+
+        const timeoutId = window.setTimeout(() => {
+            const memberData = {
+                fullName: member.displayName || '',
+                email: member.email || '',
+                phone: member.phone || ''
+            };
+            setSaved(memberData);
+            setForm(memberData);
+        });
+
+        return () => window.clearTimeout(timeoutId);
+    }, [member]);
 
     const dirty = form.fullName !== saved.fullName || form.phone !== saved.phone;
 
@@ -44,10 +69,17 @@ export default function PersonalDetails() {
                     value={form.fullName}
                     onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                 />
-                <Field id="email" label="Email address" value={form.email} disabled readOnly />
+                {/* 3. Use form.email instead of member?.email */}
+                <Field
+                    id="email"
+                    label="Email address"
+                    value={form.email}
+                    disabled
+                    readOnly
+                />
                 <Field
                     id="phone"
-                    label="Phone number(optional)"
+                    label="Phone number (optional)"
                     type="tel"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}

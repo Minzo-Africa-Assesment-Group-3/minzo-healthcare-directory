@@ -2,7 +2,7 @@ import axios from 'axios';
 import { notify } from './toast';
 
 export const api = axios.create({
-  baseURL: '/api/proxy/api/v1/auth',
+  baseURL: '/api/proxy/api/v1',
   headers: { 'Content-Type': 'application/json' },
 });
 
