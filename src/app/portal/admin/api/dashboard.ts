@@ -29,9 +29,36 @@ interface AdminUserDashboardCounts {
   total: number
 }
 
+export type AdminDashboardActivityType =
+  | "ADMIN_ACTION"
+  | "BUSINESS_CLAIM_SUBMITTED"
+  | "BUSINESS_REGISTRATION_SUBMITTED"
+  | "CUSTOMER_REVIEW_SUBMITTED"
+
+export interface AdminDashboardActivity {
+  action: string | null
+  entity: {
+    id: string
+    name: string | null
+    type: string
+  }
+  id: string
+  occurredAt: string
+  type: AdminDashboardActivityType
+}
+
+interface AdminDashboardChanges {
+  businessesRegisteredThisWeek: number
+  claimsSubmittedThisWeek: number
+  reviewsSubmittedThisWeek: number
+  usersRegisteredThisWeek: number
+}
+
 export interface IAdminDashboardResponse {
   businesses: AdminBusinessDashboardCounts
+  changes: AdminDashboardChanges
   claims: AdminClaimDashboardCounts
+  recentActivities: AdminDashboardActivity[]
   reviews: AdminReviewDashboardCounts
   users: AdminUserDashboardCounts
 }

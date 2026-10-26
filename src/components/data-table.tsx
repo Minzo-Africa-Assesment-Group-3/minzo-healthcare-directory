@@ -23,6 +23,9 @@ interface DataTableProps<TData, TValue> {
     emptyMessage?: string;
     isLoading?: boolean;
     onRowClick?: (row: TData) => void;
+    rowClassName?: (row: TData, rowIndex: number) => string | undefined;
+    tableCellClassName?: string;
+    tableHeadClassName?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -32,6 +35,9 @@ export function DataTable<TData, TValue>({
     emptyMessage = 'No results found.',
     isLoading,
     onRowClick,
+    rowClassName,
+    tableCellClassName,
+    tableHeadClassName,
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
@@ -46,7 +52,7 @@ export function DataTable<TData, TValue>({
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id}>
+                                <TableHead className={tableHeadClassName} key={header.id}>
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -69,14 +75,17 @@ export function DataTable<TData, TValue>({
                             </TableCell>
                         </TableRow>
                     ) : (
-                        table.getRowModel().rows.map((row) => (
+                        table.getRowModel().rows.map((row, rowIndex) => (
                             <TableRow
                                 key={row.id}
                                 onClick={() => onRowClick?.(row.original)}
-                                className={onRowClick ? 'cursor-pointer hover:bg-gray-50' : undefined}
+                                className={cn(
+                                    onRowClick ? 'cursor-pointer hover:bg-gray-50' : undefined,
+                                    rowClassName?.(row.original, rowIndex),
+                                )}
                             >
                                 {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
+                                    <TableCell className={tableCellClassName} key={cell.id}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </TableCell>
                                 ))}

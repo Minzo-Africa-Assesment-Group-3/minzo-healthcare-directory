@@ -28,7 +28,7 @@ export const adminAuditLogQueryKeys = {
   list: (query: AdminAuditLogsQuery) => ["admin-audit-logs", "list", query] as const
 }
 
-async function getAuditLogs(query: AdminAuditLogsQuery): Promise<AdminPaginatedResponse<AdminAuditLog>> {
+export async function getAuditLogs(query: AdminAuditLogsQuery): Promise<AdminPaginatedResponse<AdminAuditLog>> {
   const response = await adminApi.get<AdminPaginatedResponse<AdminAuditLog>>("/audit-logs", { params: query })
   return response.data
 }

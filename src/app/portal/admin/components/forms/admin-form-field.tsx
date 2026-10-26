@@ -41,18 +41,18 @@ export function AdminFormField({
 
   return (
     <div className={cn(adminFormFieldVariants({ spacing }), className)}>
-      <Label htmlFor={htmlFor}>
+      <Label className="text-sm font-semibold text-[#343a40]" htmlFor={htmlFor}>
         {label}
         {required ? <span className="text-destructive">*</span> : null}
       </Label>
       {description ? (
-        <p id={descriptionId} className="text-xs text-muted-foreground">
+        <p id={descriptionId} className="text-sm leading-5 text-muted-foreground">
           {description}
         </p>
       ) : null}
       {children}
       {error ? (
-        <p id={errorId} className="text-xs text-destructive" role="alert">
+        <p id={errorId} className="text-sm text-destructive" role="alert">
           {error}
         </p>
       ) : null}

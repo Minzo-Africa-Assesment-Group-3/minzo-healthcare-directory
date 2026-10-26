@@ -1,19 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { adminApi } from "./admin-api-client"
+import { paginateAdminItems, type AdminClientTableQuery, type AdminPaginatedResponse } from "./pagination"
 
 export interface AdminPermission {
     id: string
     name: string
     description: string | null
-}
-
-export interface AdminRole {
-    id: string
-    name: string
-    description: string | null
-    isSystem: boolean
-    permissions: AdminPermission[]
 }
 
 export interface AdminRole {
@@ -58,22 +51,40 @@ export interface CreateAdminRoleInput {
     roles: ["admin-access-control", "roles"] as const
   }
 
-  async function getPermissions(): Promise<AdminPermission[]> {
+  export async function getPermissions(): Promise<AdminPermission[]> {
     const response = await adminApi.get<{ data: AdminPermission[] }>("/permissions")
 
     return response.data.data
   }
 
-  async function getRoles(): Promise<AdminRole[]> {
+  export async function getRoles(): Promise<AdminRole[]> {
     const response = await adminApi.get<{ data: AdminRole[] }>("/roles")
 
     return response.data.data
   }
 
-  async function getAdministrators(): Promise<AdminAdministrator[]> {
+  export async function getAdministrators(): Promise<AdminAdministrator[]> {
     const response = await adminApi.get<{ data: AdminAdministrator[] }>("/users")
 
     return response.data.data
+  }
+
+  function matchesSearch(value: string, search?: string): boolean {
+    return !search || value.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+  }
+
+  export async function getPagedAdministrators(query: AdminClientTableQuery): Promise<AdminPaginatedResponse<AdminAdministrator>> {
+    const administrators = await getAdministrators()
+    const filtered = administrators.filter((administrator) => matchesSearch(`${administrator.displayName} ${administrator.email}`, query.search))
+
+    return paginateAdminItems(filtered, query)
+  }
+
+  export async function getPagedRoles(query: AdminClientTableQuery): Promise<AdminPaginatedResponse<AdminRole>> {
+    const roles = await getRoles()
+    const filtered = roles.filter((role) => matchesSearch(`${role.name} ${role.description ?? ""}`, query.search))
+
+    return paginateAdminItems(filtered, query)
   }
 
   async function createAdminRole(input: CreateAdminRoleInput): Promise<AdminRole> {
@@ -168,5 +179,3 @@ export interface CreateAdminRoleInput {
       }
     })
   }
-
-

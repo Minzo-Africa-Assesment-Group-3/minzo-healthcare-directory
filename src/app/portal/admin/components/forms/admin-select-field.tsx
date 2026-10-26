@@ -56,14 +56,15 @@ export function AdminSelectField({
         <SelectTrigger
           aria-describedby={getAdminFieldDescribedBy(fieldId, description, error)}
           aria-invalid={error ? true : undefined}
-          className="h-12 w-full rounded-xl px-4 text-sm"
+          className="w-full rounded-xl px-4 text-base"
           id={fieldId}
+          size="field"
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="rounded-xl p-1.5">
           {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem className="rounded-lg px-3 py-2 text-base" key={option.value} value={option.value}>
               {option.label}
             </SelectItem>
           ))}

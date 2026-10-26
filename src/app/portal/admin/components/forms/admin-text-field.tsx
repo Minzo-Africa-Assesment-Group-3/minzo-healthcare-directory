@@ -39,7 +39,7 @@ export function AdminTextField({
         {...inputProps}
         aria-describedby={getAdminFieldDescribedBy(fieldId, description, error)}
         aria-invalid={error ? true : undefined}
-        className={cn("h-12 rounded-xl px-4 text-sm", className)}
+        className={cn("h-12 rounded-xl px-4 text-base md:text-base", className)}
         id={fieldId}
       />
     </AdminFormField>

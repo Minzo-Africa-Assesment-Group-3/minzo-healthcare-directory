@@ -39,6 +39,10 @@ export function AdminLoginForm() {
     if (searchParams.get("expired") === "1") {
       notify.error("Your administrator session expired. Please log in again.")
     }
+
+    if (searchParams.get("invitation") === "accepted") {
+      notify.success("Your administrator account is ready. Please sign in.")
+    }
   }, [searchParams])
 
   async function onSubmit(values: AdminLoginValues) {

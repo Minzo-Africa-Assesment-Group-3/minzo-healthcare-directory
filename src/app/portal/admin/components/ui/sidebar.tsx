@@ -18,10 +18,13 @@ export function AdminSidebar({ collapsed, mobileOpen, onCloseMobile, onToggleCol
   const pathname = usePathname()
   return (
     <>
-      <button aria-label="Close navigation" className={`fixed inset-0 z-30 bg-slate-950/45 transition-opacity lg:hidden ${mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} onClick={onCloseMobile} type="button" />
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[287px] flex-col bg-[#f8f9fa] px-4 py-7 transition-[transform,width] duration-200 lg:px-0 lg:pb-[14px] lg:pt-11 lg:translate-x-0 ${mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"} ${collapsed ? "lg:w-[88px]" : ""}`}>
+      <button aria-label="Close navigation" className={`fixed  inset-0 z-30 bg-slate-950/45 transition-opacity  lg:hidden ${mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} onClick={onCloseMobile} type="button" />
+      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[287px]  flex-col bg-[#f8f9fa] lg:bg-inherit px-4 py-7 transition-[transform,width] duration-200 lg:px-0 lg:pb-[14px] lg:pt-11 lg:translate-x-0 ${mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"} ${collapsed ? "lg:w-[88px]" : ""}`}>
         <div className={`flex h-12 items-center ${collapsed ? "justify-center" : "justify-between pl-2"}`}>
-          <Link aria-label="Minzo admin dashboard" className="flex items-center gap-3" href="/portal/admin/dashboard"><Image alt="Minzo" className="h-11 w-auto" height={44} priority src="/Minzo-Logo-1.jpg" width={120} /></Link>
+          <Link aria-label="Minzo admin dashboard" className="flex items-center gap-[4px]" href="/portal/admin/dashboard">
+            <Image alt="Minzo" quality={9} className=" aspect-square h-[56px] w-[56px]" width={56} height={56} priority src="/img_admin_sidebar.png" />
+            <span className="text-lg text-[#0C486D] font-semibold">Minzo</span>
+          </Link>
           <button aria-label="Close navigation" className="rounded-lg p-2 text-slate-600 hover:bg-slate-200 lg:hidden" onClick={onCloseMobile} type="button"><Icon icon="solar:close-circle-linear" width={24} /></button>
         </div>
 

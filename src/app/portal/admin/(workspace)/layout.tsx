@@ -13,7 +13,7 @@ export default function AdminWorkspaceLayout({ children }: AdminWorkspaceLayoutP
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="min-h-dvh w-full bg-[#f5f5f5] font-(family-name:--font-admin) text-[#212121]">
+    <div className="min-h-dvh w-full bg-[#f5f5f5] font-(family-name:--font-admin) text-[#212121] ">
       <AdminSidebar
         collapsed={collapsed}
         mobileOpen={mobileOpen}

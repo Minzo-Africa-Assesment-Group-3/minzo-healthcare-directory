@@ -1,4 +1,5 @@
 export { AdminButton } from "./admin-button"
 export { AdminHeader } from "./header"
+export { AdminModal } from "./admin-modal"
 export { AdminProfileMenu } from "./admin-profile-menu"
 export { AdminSidebar } from "./sidebar"
