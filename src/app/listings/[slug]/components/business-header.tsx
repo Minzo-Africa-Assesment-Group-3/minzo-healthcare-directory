@@ -17,23 +17,21 @@ interface Props {
     refetch: () => void;
 }
 
-export default function BusinessHeader({ business: b, location: loc, rating, status, following, onToggleFollow, onMessage, refetch }: Props) {
+export default function BusinessHeader({ business: b, location: loc, rating, status, following, onMessage, refetch }: Props) {
     const { label, icon: Icon } = facilityMeta(loc.facilityType);
     const verified = b.verificationStatus === 'VERIFIED';
 
     const toggleFollowing = async (id: string) => {
         if (following === true) {
             try {
-                const res = await usersService.unFollowBusiness(id)
-                console.log(res)
+                await usersService.unFollowBusiness(id)
                 refetch()
             } catch (error) {
                 console.log(error)
             }
         } else {
             try {
-                const res = await usersService.followBusiness(id)
-                console.log(res)
+                await usersService.followBusiness(id)
                 refetch()
             } catch (error) {
                 console.log(error)
