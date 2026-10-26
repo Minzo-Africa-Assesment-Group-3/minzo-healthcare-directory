@@ -10,6 +10,7 @@ import SearchBar, { type SearchValues } from './search-bar';
 // import CategoryTabs from './category-tabs';
 import LocationBanner, { type GeoStatus } from './location-banner';
 import BusinessList from './business-list';
+import { Suspense } from 'react';
 
 const font = Roboto_Serif({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
@@ -72,15 +73,17 @@ export default function ListingPage() {
         <div className={`${font.className} min-h-dvh bg-white text-gray-900 font-(family-name:--font-roboto-slab)`}>
             <Navbar />
 
-            <SearchBar
-                key={resetKey}
-                category={category}
-                onCategoryChange={pickCategory}
-                onSearch={(q) => {
-                    setSearch(q);
-                    setPage(1);
-                }}
-            />
+            <Suspense fallback={<div className="py-4" />}>
+                <SearchBar
+                    key={resetKey}
+                    category={category}
+                    onCategoryChange={pickCategory}
+                    onSearch={(q) => {
+                        setSearch(q);
+                        setPage(1);
+                    }}
+                />
+            </Suspense>
             {/* <CategoryTabs value={category} onChange={pickCategory} /> */}
 
             <div className="mx-auto w-full max-w-6xl px-4 pt-4 sm:px-6 lg:px-8">
@@ -97,6 +100,6 @@ export default function ListingPage() {
                     onClear={clearAll}
                 />
             </div>
-        </div>
+        </div >
     );
 }
