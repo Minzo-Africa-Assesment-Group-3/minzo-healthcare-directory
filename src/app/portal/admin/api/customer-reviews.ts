@@ -51,7 +51,7 @@ export const adminCustomerReviewQueryKeys = {
   list: (query: AdminCustomerReviewsQuery) => ["admin-customer-reviews", "list", query] as const
 }
 
-async function getCustomerReviews(query: AdminCustomerReviewsQuery): Promise<AdminPaginatedResponse<AdminCustomerReview>> {
+export async function getCustomerReviews(query: AdminCustomerReviewsQuery): Promise<AdminPaginatedResponse<AdminCustomerReview>> {
   const response = await adminApi.get<AdminPaginatedResponse<AdminCustomerReview>>("/customer-reviews", { params: query })
   return response.data
 }

@@ -54,7 +54,7 @@ export default function AdminDashboardPage() {
   ]
 
   return (
-    <div className="w-full max-w-[900px] space-y-12 pb-10">
+    <div className="w-full  space-y-12 pb-10">
       <section className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div className="space-y-3"><h1 className="text-[28px] font-semibold leading-8 text-black">Welcome Back, Admin</h1><p className="text-base font-normal leading-6 text-black">Here’s what’s happening with Minzo today.</p></div><div className="flex h-[55px] w-[169px] shrink-0 items-center justify-center gap-3 rounded-lg bg-[#e7edf0] text-right text-[#0c486d]"><Icon icon="solar:calendar-outline" width={20} /><div><p className="text-sm font-semibold leading-5">{getDateLabel()}</p><p className="text-xs font-medium leading-4 text-[#6c757d]">{getTimeLabel()}</p></div></div></section>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-[18px]">

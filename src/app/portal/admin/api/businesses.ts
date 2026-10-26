@@ -116,7 +116,7 @@ export const adminBusinessQueryKeys = {
   list: (query: AdminBusinessRegistrationsQuery) => ["admin-businesses", "list", query] as const
 }
 
-async function getBusinessRegistrations(query: AdminBusinessRegistrationsQuery): Promise<AdminPaginatedResponse<AdminBusinessRegistration>> {
+export async function getAdminBusinessRegistrations(query: AdminBusinessRegistrationsQuery): Promise<AdminPaginatedResponse<AdminBusinessRegistration>> {
   const response = await adminApi.get<AdminPaginatedResponse<AdminBusinessRegistration>>("/businesses", { params: query })
   return response.data
 }
@@ -134,7 +134,7 @@ async function moderateBusiness({ businessId, ...body }: ModerateBusinessInput):
 export function useAdminBusinessRegistrationsQuery(query: AdminBusinessRegistrationsQuery) {
   return useQuery({
     queryKey: adminBusinessQueryKeys.list(query),
-    queryFn: () => getBusinessRegistrations(query)
+    queryFn: () => getAdminBusinessRegistrations(query)
   })
 }
 

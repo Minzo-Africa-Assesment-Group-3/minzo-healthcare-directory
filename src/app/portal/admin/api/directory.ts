@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import axios from "axios"
 
 import { adminApi } from "./admin-api-client"
+import { paginateAdminItems, type AdminClientTableQuery, type AdminPaginatedResponse } from "./pagination"
+
+const directoryApi = axios.create({ baseURL: "/api/proxy/api/v1" })
 
 export interface AdminCounty {
   id: string
@@ -15,6 +19,10 @@ export interface AdminCity {
   name: string
   slug: string
   isActive: boolean
+}
+
+interface DirectoryResponse<TItem> {
+  data: TItem[]
 }
 
 export interface CreateCountyInput {
@@ -57,6 +65,22 @@ async function createCity(input: CreateCityInput): Promise<AdminCity> {
 async function updateCity({ cityId, ...body }: UpdateCityInput): Promise<AdminCity> {
   const response = await adminApi.patch<AdminCity>(`/cities/${cityId}`, body)
   return response.data
+}
+
+export async function getAdminCounties(query: AdminClientTableQuery): Promise<AdminPaginatedResponse<AdminCounty>> {
+  const response = await directoryApi.get<DirectoryResponse<Omit<AdminCounty, "isActive">>>("/counties", {
+    params: { limit: 20, search: query.search }
+  })
+
+  return paginateAdminItems(response.data.data.map((county) => ({ ...county, isActive: true })), query)
+}
+
+export async function getAdminCities(query: AdminClientTableQuery): Promise<AdminPaginatedResponse<AdminCity>> {
+  const response = await directoryApi.get<DirectoryResponse<Omit<AdminCity, "isActive">>>("/cities", {
+    params: { limit: 100, search: query.search }
+  })
+
+  return paginateAdminItems(response.data.data.map((city) => ({ ...city, isActive: true })), query)
 }
 
 export function useCreateCountyMutation() {
