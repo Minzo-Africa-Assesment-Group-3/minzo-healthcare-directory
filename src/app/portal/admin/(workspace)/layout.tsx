@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { Suspense, useState, type ReactNode } from "react"
 
 import { AdminHeader, AdminSidebar } from "../components/ui"
 
@@ -23,7 +23,9 @@ export default function AdminWorkspaceLayout({ children }: AdminWorkspaceLayoutP
       <div className={`flex min-h-dvh min-w-0 flex-col transition-[margin] duration-200 ${collapsed ? "lg:ml-[120px]" : "lg:ml-[308px]"}`}>
         <AdminHeader onOpenMobileNavigation={() => setMobileOpen(true)} />
         <main className="min-w-0 flex-1 overflow-auto px-4 pb-10 pt-8 sm:px-8 lg:px-10">
-          <div className="mx-auto w-full max-w-[1280px]">{children}</div>
+          <Suspense fallback={<div className="h-64 animate-pulse rounded-2xl bg-slate-200" />}>
+            <div className="mx-auto w-full max-w-[1280px]">{children}</div>
+          </Suspense>
         </main>
       </div>
     </div>
