@@ -26,13 +26,11 @@ export const FACILITY_TYPES = [
 // ⚠ Only GENERAL_PRACTITIONER is confirmed by the sample payload
 export const PROFESSIONS = [
     { value: 'GENERAL_PRACTITIONER', label: 'General practitioner' },
-    { value: 'SPECIALIST_DOCTOR', label: 'Specialist doctor' },
-    { value: 'NURSE', label: 'Nurse' },
-    { value: 'MIDWIFE', label: 'Midwife' },
-    { value: 'PHARMACIST', label: 'Pharmacist' },
-    { value: 'LAB_TECHNICIAN', label: 'Lab technician' },
     { value: 'DENTIST', label: 'Dentist' },
-    { value: 'MENTAL_HEALTH_PROFESSIONAL', label: 'Mental health professional' },
+    { value: 'NURSE', label: 'Nurse' },
+    { value: 'PHARMACIST', label: 'Pharmacist' },
+    { value: 'PEDIATRICIAN', label: 'Pediatrician' },
+    { value: 'OPHTHALMOLOGIST', label: 'Ophthamologist' },
     { value: 'OTHER', label: 'Other' },
 ];
 

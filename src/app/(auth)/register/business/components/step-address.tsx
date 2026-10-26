@@ -68,7 +68,7 @@ export default function StepAddress() {
             setLoadingCities(true);
             try {
                 const res = await authService.getCities(countyId);
-                console.log(res)
+                // console.log(res)
                 const data = (res as unknown as City[]) || [];
                 const formattedCities = data.map((c) => ({
                     value: c.name, // Change to c.id if your backend expects city IDs
