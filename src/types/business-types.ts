@@ -76,6 +76,11 @@ export interface ReviewQuery {
     pageSize: number;
 }
 
+export interface AddReviews {
+    stars: number;
+    text: string;
+    isAnonymous: boolean
+}
 
 /* ---------- GET /api/v1/businesses/{slug} ---------- */
 

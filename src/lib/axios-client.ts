@@ -43,7 +43,7 @@ api.interceptors.response.use(
     }
 
     const message = error.response.data.errors?.body[0]?.message ? error.response.data.errors?.body[0]?.message : error.response.data.detail ? error.response.data.detail : 'Something went wrong';
-    // console.log(error.response.data.detail)
+    console.log(error.response.data.detail)
     const text = Array.isArray(message) ? message.join(', ') : message;
     notify.error(text);
     return Promise.reject(new Error(text));

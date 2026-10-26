@@ -45,7 +45,7 @@ export default function Pagination({
                         onClick={() => onPageChange(p.pageNumber - 1)}
                         disabled={disabled || !p.hasPreviousPage}
                         aria-label="Previous page"
-                        className={`${btn} gap-1 border-gray-200 bg-white pr-3 text-gray-800 hover:bg-gray-50`}
+                        className={`${btn} gap-1 border-gray-200 bg-white pr-3 text-gray-800 hover:bg-gray-50 cursor-pointer`}
                     >
                         <ChevronLeft className="h-4 w-4" aria-hidden />
                         <span className="hidden sm:inline">Previous</span>
@@ -68,8 +68,8 @@ export default function Pagination({
                                         aria-label={`Page ${item}`}
                                         aria-current={item === p.pageNumber ? 'page' : undefined}
                                         className={`${btn} ${item === p.pageNumber
-                                                ? 'border-[#0C486D] bg-[#0C486D] font-medium text-white'
-                                                : 'border-gray-200 bg-white text-gray-800 hover:bg-gray-50'
+                                                ? 'border-[#0C486D] bg-[#0C486D] font-medium text-white cursor-pointer'
+                                                : 'border-gray-200 bg-white text-gray-800 hover:bg-gray-50 cursor-pointer'
                                             }`}
                                     >
                                         {item}
@@ -84,7 +84,7 @@ export default function Pagination({
                         onClick={() => onPageChange(p.pageNumber + 1)}
                         disabled={disabled || !p.hasNextPage}
                         aria-label="Next page"
-                        className={`${btn} gap-1 border-gray-200 bg-white pl-3 text-gray-800 hover:bg-gray-50`}
+                        className={`${btn} gap-1 border-gray-200 bg-white pl-3 text-gray-800 hover:bg-gray-50 cursor-pointer`}
                     >
                         <span className="hidden sm:inline">Next</span>
                         <ChevronRight className="h-4 w-4" aria-hidden />

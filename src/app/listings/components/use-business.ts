@@ -24,26 +24,56 @@ export function useBusinesses(query: BusinessQuery) {
     const { pageNumber, pageSize, facilityType, search, location, latitude, longitude } = query;
 
     useEffect(() => {
-        const controller = new AbortController();
-        const loadingTimer = window.setTimeout(() => {
-            if (!controller.signal.aborted) {
-                setState((s) => ({ ...s, loading: true, error: null }));
-            }
-        }, 0);
+        let cancelled = false;
 
         businessService
-            .getAll({ pageNumber, pageSize, facilityType, search, location, latitude, longitude }, { signal: controller.signal })
-            .then((res) => setState({ data: res.data, pagination: res.pagination, loading: false, error: null }))
+            .getAll({
+                pageNumber,
+                pageSize,
+                facilityType,
+                search,
+                location,
+                latitude,
+                longitude,
+            })
+            .then((res) => {
+                if (cancelled) return;
+
+                setState({
+                    data: res.data,
+                    pagination: res.pagination,
+                    loading: false,
+                    error: null,
+                });
+            })
             .catch((err) => {
-                if (axios.isCancel(err)) return;
+                if (cancelled || axios.isCancel(err)) return;
+
                 const message = axios.isAxiosError(err)
-                    ? (err.response?.data as { message?: string } | undefined)?.message ?? err.message
+                    ? (err.response?.data as { message?: string } | undefined)?.message
+                    ?? err.message
                     : 'Something went wrong';
-                setState((s) => ({ ...s, loading: false, error: message }));
+
+                setState((s) => ({
+                    ...s,
+                    loading: false,
+                    error: message,
+                }));
             });
 
-        return () => controller.abort();
-    }, [pageNumber, pageSize, facilityType, search, location, latitude, longitude, attempt]);
+        return () => {
+            cancelled = true;
+        };
+    }, [
+        pageNumber,
+        pageSize,
+        facilityType,
+        search,
+        location,
+        latitude,
+        longitude,
+        attempt,
+    ]);
 
     const refetch = useCallback(() => setAttempt((a) => a + 1), []);
 
