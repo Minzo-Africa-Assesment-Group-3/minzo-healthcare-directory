@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AlertCircle, ArrowLeft, SearchX } from 'lucide-react';
 import { serif } from '@/lib/fonts';
 import { notify } from '@/lib/toast';
-import Navbar from '@/components/landing/navbar';
+// import Navbar from '@/components/landing/navbar';
 import { useBusiness } from './use-business';
 import { useFollow } from './use-follow';
 import { getOpenStatus } from './hours';
@@ -39,7 +39,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     return (
         <div className={`${serif.className} min-h-dvh bg-white text-gray-900`}>
-            <Navbar />
+            {/* <Navbar /> */}
             <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
                 <button
                     type="button"
@@ -70,7 +70,7 @@ export default function BusinessProfile({ slug }: { slug: string }) {
     const [page] = useState(1);
 
     const { data, loading, error, notFound, refetch } = useBusiness(slug);
-    const { data: reviews } = useBusinessReview({
+    const { data: reviews, refetch: reviewsRefetch } = useBusinessReview({
         pageNumber: page,
         pageSize: DEFAULT_PAGE_SIZE
     }, data?.id);
@@ -107,12 +107,12 @@ export default function BusinessProfile({ slug }: { slug: string }) {
 
     return (
         <Shell>
-            <ProfileContent key={data.id} business={data} refetch={refetch} reviews={reviews} />
+            <ProfileContent key={data.id} business={data} refetch={refetch} reviews={reviews} reviewsRefetch={reviewsRefetch} />
         </Shell>
     );
 }
 
-function ProfileContent({ business, refetch, reviews }: { business: BusinessDetail, refetch: () => void, reviews: CustomerReviews[] }) {
+function ProfileContent({ business, refetch, reviews, reviewsRefetch }: { business: BusinessDetail, refetch: () => void, reviews: CustomerReviews[], reviewsRefetch: () => void }) {
     const { toggle } = useFollow(business.id);
     const following = business?.isFollowedByCurrentUser;
     const [locationId, setLocationId] = useState(
@@ -158,7 +158,7 @@ function ProfileContent({ business, refetch, reviews }: { business: BusinessDeta
 
             notify.success('Review added successfully');
             setModal(null);
-            refetch();
+            reviewsRefetch();
         } catch (error) {
             console.error(error);
         }

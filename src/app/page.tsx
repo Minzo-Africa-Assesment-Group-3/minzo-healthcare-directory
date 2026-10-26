@@ -1,4 +1,4 @@
-'use client';
+// 'use client';
 
 import React from 'react';
 // import { Fraunces } from 'next/font/google';
@@ -9,11 +9,13 @@ import HowItWorksSection from '../components/landing/how-it-works-section';
 import AudienceSection from '../components/landing/audience-section';
 import ClearInfoSection from '../components/landing/clear-info-section';
 import Footer from '../components/landing/footer';
+import { getCurrentMember } from '@/lib/member-session';
 
-export default function Home(): React.JSX.Element {
+export default async function Home() {
+  const user = await getCurrentMember();
   return (
     <div className="font-(family-name:--font-roboto-slab)">
-      <Navbar />
+      <Navbar user={user} />
       <main>
         <HeroSection />
         <ServicesSection />

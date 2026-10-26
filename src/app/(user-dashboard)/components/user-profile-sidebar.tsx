@@ -15,7 +15,7 @@ export default function UserProfileSidebar() {
     const handleLogout = async () => {
         await logout();
         setMember(null);
-        router.replace('/login');
+        router.replace('/');
         router.refresh();
     };
 
