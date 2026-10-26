@@ -85,6 +85,22 @@ export default function BusinessRegistrationsPage() {
       queryKey={["admin-business-registrations"]}
       searchPlaceholder="Search business registrations…"
       onRowClick={(business) => router.push(`/portal/admin/businesses/${business.id}`)}
+      isFilterVisibleOnStart
+      extendedFilter={{
+        enable: true,
+        filters: [
+          {
+            accessor: "status",
+            label: "Registration status",
+            options: [
+              { label: "Pending approval", value: "PENDING_APPROVAL" },
+              { label: "Approved", value: "APPROVED" },
+              { label: "Rejected", value: "REJECTED" }
+            ],
+            type: "SelectFilter"
+          }
+        ]
+      }}
     />
   )
 }
