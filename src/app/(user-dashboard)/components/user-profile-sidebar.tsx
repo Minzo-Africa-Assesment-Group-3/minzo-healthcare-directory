@@ -2,10 +2,22 @@
 
 import Link from 'next/link';
 import { PROFILE_SECTIONS } from './user-sections';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { LogOut } from 'lucide-react';
+import { logout } from '@/lib/logout';
+import { useMemberAuthStore } from '@/store/member-auth-store';
 
 export default function UserProfileSidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+    const setMember = useMemberAuthStore((state) => state.setMember);
+
+    const handleLogout = async () => {
+        await logout();
+        setMember(null);
+        router.replace('/login');
+        router.refresh();
+    };
 
     return (
         <nav
@@ -32,6 +44,11 @@ export default function UserProfileSidebar() {
                     </Link>
                 );
             })}
+
+            <div className="flex items-center px-4 py-2 gap-2 text-red-500 text-sm hover:bg-red-50 cursor-pointer rounded-lg" onClick={handleLogout}>
+                <LogOut size={16} />
+                <p>Log out</p>
+            </div>
         </nav>
     );
 }

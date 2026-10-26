@@ -32,8 +32,8 @@ export interface MoneyValue {
 
 export interface MemberAuthUser {
     id: string;
-    membershipNumber: string;
-    fullName: string;
+    email: string;
+    displayName: string;
 }
 
 export interface PaginatedResult<T> {

@@ -30,6 +30,7 @@ export default function VerifyEmail() {
 function VerifyEmailContent() {
     const router = useRouter();
     const token = useSearchParams().get('token');
+    const regType = useSearchParams().get('regType');
 
     const [status, setStatus] = useState<Status>(token ? 'verifying' : 'error');
     const [errorMessage, setErrorMessage] = useState(
@@ -61,7 +62,7 @@ function VerifyEmailContent() {
         // };
     }, [token]);
 
-    console.log(status)
+    // console.log(status)
 
     // Auto-redirect after success
     useEffect(() => {
@@ -69,6 +70,14 @@ function VerifyEmailContent() {
         const id = setTimeout(() => router.replace('/login'), REDIRECT_DELAY_MS);
         return () => clearTimeout(id);
     }, [status, router]);
+
+    const goToLogin = () => {
+        if (regType === "user") {
+            router.replace('/login')
+        } else if (regType === "business") {
+            router.replace('/login-business')
+        }
+    }
 
     if (status === 'verifying') {
         return <Loading message="Verifying" />;
@@ -113,7 +122,7 @@ function VerifyEmailContent() {
 
                 <button
                     type="button"
-                    onClick={() => router.replace('/login')}
+                    onClick={goToLogin}
                     className="mt-6 w-full text-center text-sm font-semibold text-[#0C486D] hover:underline cursor-pointer"
                 >
                     Go to login now
@@ -169,7 +178,7 @@ function VerifyEmailContent() {
         >
             <button
                 type="button"
-                onClick={() => router.push('/login')}
+                onClick={goToLogin}
                 className="h-14 w-full rounded-full bg-[#0C486D] text-base font-medium text-white shadow-[0_12px_24px_-8px_rgba(12,72,109,0.35)] transition-colors hover:bg-[#0a3b5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0C486D] cursor-pointer"
             >
                 Go to login

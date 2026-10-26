@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-import { MemberAuthUser } from '@/lib/types';
+import { AppUser } from '@/services/users.service';
 
 interface MemberAuthState {
-    member: MemberAuthUser | null;
+    member: AppUser | null;
     hydrated: boolean;
-    setMember: (member: MemberAuthUser | null) => void;
+    setMember: (member: AppUser | null) => void;
 }
 
 export const useMemberAuthStore = create<MemberAuthState>((set) => ({

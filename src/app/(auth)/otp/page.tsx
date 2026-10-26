@@ -3,8 +3,8 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { notify } from '@/lib/toast';
-import { useAuthStore } from '@/store/auth-store';
 import AuthShell from '../auth-shell';
+import { useMemberAuthStore } from '@/store/member-auth-store';
 
 const OTP_LENGTH = 4; // Figma shows 4 boxes but the copy says "6-digit": confirm and change here
 
@@ -12,7 +12,7 @@ function OtpVerificationForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const challengeId = searchParams.get('challengeId');
-    const setUser = useAuthStore((state) => state.setUser);
+    const setMember = useMemberAuthStore((s) => s.setMember);
 
     const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''));
     const [error, setError] = useState<string | null>(null);
@@ -98,9 +98,9 @@ function OtpVerificationForm() {
             return;
         }
 
-        setUser(data.user);
+        setMember(data.user);
         notify.success('You are now signed in.');
-        router.push(searchParams.get('from') ?? '/');
+        router.push(searchParams.get('from') ?? '/user-details');
     };
 
     const handleResend = async () => {
