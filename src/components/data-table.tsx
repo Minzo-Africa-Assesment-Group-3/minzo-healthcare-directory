@@ -14,17 +14,22 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { cn } from 'cn';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
+    className?: string;
     data: TData[];
+    emptyMessage?: string;
     isLoading?: boolean;
     onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
     columns,
+    className,
     data,
+    emptyMessage = 'No results found.',
     isLoading,
     onRowClick,
 }: DataTableProps<TData, TValue>) {
@@ -35,7 +40,7 @@ export function DataTable<TData, TValue>({
     });
 
     return (
-        <div className="rounded-md border bg-white">
+        <div className={cn('rounded-md border bg-white', className)}>
             <Table>
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -60,7 +65,7 @@ export function DataTable<TData, TValue>({
                     ) : data.length === 0 ? (
                         <TableRow>
                             <TableCell colSpan={columns.length} className="h-24 text-center text-gray-500">
-                                No results found.
+                                {emptyMessage}
                             </TableCell>
                         </TableRow>
                     ) : (
