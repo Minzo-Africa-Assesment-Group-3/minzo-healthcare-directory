@@ -12,7 +12,10 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@bprogress/next": "^3.2.12",
     "@hookform/resolvers": "^5.9.1",
+    "@iconify/react": "^6.0.3",
+    "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-table": "^8.21.3",
     "axios": "^1.20.0",
