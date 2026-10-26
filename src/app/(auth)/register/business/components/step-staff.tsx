@@ -25,7 +25,7 @@ export default function StepStaff() {
                 {fields.map((field, i) => {
                     const err = errors.staffMembers?.[i];
                     const detailsError = !!(err?.professionalTitle || err?.phone || err?.email || err?.yearsExperience);
-                    const showDetails = expanded[field.id] || detailsError; // never hide a field that has an error
+                    const showDetails = expanded[field.id] || detailsError;
                     return (
                         <li key={field.id} className="rounded-2xl border border-gray-200 p-3">
                             <div className="grid grid-cols-2 gap-3">
