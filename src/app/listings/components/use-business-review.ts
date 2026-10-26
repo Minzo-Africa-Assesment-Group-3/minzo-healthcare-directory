@@ -25,25 +25,27 @@ export function useBusinessReview(query: ReviewQuery, businessId: string | undef
     const { pageNumber, pageSize } = query;
 
     useEffect(() => {
-        const controller = new AbortController();
-        const loadingTimer = window.setTimeout(() => {
-            if (!controller.signal.aborted) {
-                setState((s) => ({ ...s, loading: true, error: null }));
-            }
-        }, 0);
+        if (!businessId) return;
 
         businessService
             .getBusinessReview({ pageNumber, pageSize }, businessId)
-            .then((res) => setState({ data: res.data, pagination: res.pagination, loading: false, error: null }))
+            .then((res) =>
+                setState({
+                    data: res.data,
+                    pagination: res.pagination,
+                    loading: false,
+                    error: null,
+                }),
+            )
             .catch((err) => {
                 if (axios.isCancel(err)) return;
+
                 const message = axios.isAxiosError(err)
                     ? (err.response?.data as { message?: string } | undefined)?.message ?? err.message
                     : 'Something went wrong';
+
                 setState((s) => ({ ...s, loading: false, error: message }));
             });
-
-        return () => controller.abort();
     }, [pageNumber, pageSize, attempt, businessId]);
 
     const refetch = useCallback(() => setAttempt((a) => a + 1), []);

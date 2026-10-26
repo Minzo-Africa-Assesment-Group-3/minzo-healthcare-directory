@@ -17,28 +17,51 @@ export function useBusiness(slug: string) {
     const [attempt, setAttempt] = useState(0);
 
     useEffect(() => {
-        const controller = new AbortController();
-        // setState({ data: null, loading: true, error: null, notFound: false });
-        queueMicrotask(() => {
-            setState({ data: null, loading: true, error: null, notFound: false });
-        });
+        let cancelled = false;
 
         businessService
-            .getBySlug(slug, { signal: controller.signal })
-            .then((data) => setState({ data, loading: false, error: null, notFound: false }))
+            .getBySlug(slug)
+            .then((data) => {
+                if (cancelled) return;
+
+                setState({
+                    data,
+                    loading: false,
+                    error: null,
+                    notFound: false,
+                });
+            })
             .catch((err) => {
+                if (cancelled) return;
+
                 if (axios.isCancel(err)) return;
+
                 if (axios.isAxiosError(err) && err.response?.status === 404) {
-                    setState({ data: null, loading: false, error: null, notFound: true });
+                    setState({
+                        data: null,
+                        loading: false,
+                        error: null,
+                        notFound: true,
+                    });
                     return;
                 }
+
                 const message = axios.isAxiosError(err)
-                    ? (err.response?.data as { message?: string } | undefined)?.message ?? err.message
+                    ? (err.response?.data as { message?: string } | undefined)?.message
+                    ?? err.message
                     : 'Something went wrong';
-                setState({ data: null, loading: false, error: message, notFound: false });
+
+                setState({
+                    data: null,
+                    loading: false,
+                    error: message,
+                    notFound: false,
+                });
             });
 
-        return () => controller.abort();
+        return () => {
+            cancelled = true;
+        };
     }, [slug, attempt]);
 
     const refetch = useCallback(() => setAttempt((a) => a + 1), []);

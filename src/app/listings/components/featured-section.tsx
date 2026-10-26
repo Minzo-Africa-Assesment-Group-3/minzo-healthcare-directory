@@ -2,13 +2,14 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { BusinessWithDistance } from "@/lib/types";
+// import type { BusinessWithDistance } from "@/lib/types";
 import BusinessCard from "./business-card";
 import s from "./listing.module.css";
+import { Business } from "@/types/business-types";
 
 interface Props {
     title: string;
-    items: BusinessWithDistance[];
+    items: Business[];
     expanded: boolean;
     onToggle: () => void;
     onClear: () => void;

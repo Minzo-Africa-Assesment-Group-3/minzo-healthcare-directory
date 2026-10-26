@@ -14,7 +14,7 @@ import BusinessHeader from './business-header';
 import ProfileTabs, { type Tab } from './profile-tabs';
 import AboutCard from './about-card';
 import ServicesCard from './services-card';
-import ReviewsCard, { CustomerReviews, type LocalReview } from './reviews-card';
+import ReviewsCard, { CustomerReviews } from './reviews-card';
 import ContactCard from './contact-card';
 import HoursCard from './hours-card';
 import Modal from './modal';
@@ -22,7 +22,8 @@ import ReviewForm from './review-form';
 import MessageForm from './message-form';
 import ProfileSkeleton from './profile-skeleton';
 import { useBusinessReview } from '../../components/use-business-review';
-import { DEFAULT_PAGE_SIZE } from '@/services/business.service';
+import { businessService, DEFAULT_PAGE_SIZE } from '@/services/business.service';
+import { AddReviews } from '@/types/business-types';
 
 const TABS: Tab[] = [
     { id: 'overview', label: 'Overview' },
@@ -66,10 +67,10 @@ function Message({ icon: Icon, text, action }: { icon: typeof AlertCircle; text:
 
 export default function BusinessProfile({ slug }: { slug: string }) {
     const router = useRouter();
-    const [page, setPage] = useState(1);
+    const [page] = useState(1);
 
     const { data, loading, error, notFound, refetch } = useBusiness(slug);
-    const { data: reviews, loading: reviewsLoading, error: reviewsError, refetch: refetchReview } = useBusinessReview({
+    const { data: reviews } = useBusinessReview({
         pageNumber: page,
         pageSize: DEFAULT_PAGE_SIZE
     }, data?.id);
@@ -117,7 +118,6 @@ function ProfileContent({ business, refetch, reviews }: { business: BusinessDeta
     const [locationId, setLocationId] = useState(
         (business.locations.find((l) => l.isPrimary) ?? business.locations[0])?.id,
     );
-    const [added, setAdded] = useState<LocalReview[]>([]);
     const [modal, setModal] = useState<null | 'review' | 'message'>(null);
 
     const location = business.locations.find((l) => l.id === locationId) ?? business.locations[0];
@@ -131,14 +131,14 @@ function ProfileContent({ business, refetch, reviews }: { business: BusinessDeta
         [location],
     );
 
-    // API gives the summary only; locally added reviews are folded in until there's a reviews endpoint
     const rating = useMemo(() => {
         const base = business.rating;
-        const total = base.reviewCount + added.length;
-        if (total === 0) return { average: null, total: 0 };
-        const sum = (base.averageRating ?? 0) * base.reviewCount + added.reduce((n, r) => n + r.rating, 0);
-        return { average: sum / total, total };
-    }, [business.rating, added]);
+
+        return {
+            average: base.reviewCount > 0 ? base.averageRating : null,
+            total: base.reviewCount,
+        };
+    }, [business.rating]);
 
     if (!location) {
         return <Message icon={AlertCircle} text="This business has no locations yet." action={null} />;
@@ -147,6 +147,21 @@ function ProfileContent({ business, refetch, reviews }: { business: BusinessDeta
     const onToggleFollow = () => {
         const next = toggle();
         notify.success(next ? `You’re following ${business.displayName}` : `You unfollowed ${business.displayName}`);
+    };
+
+    const submitReview = async (
+        businessId: string,
+        payload: AddReviews
+    ) => {
+        try {
+            await businessService.addReviews(businessId, payload);
+
+            notify.success('Review added successfully');
+            setModal(null);
+            refetch();
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -196,20 +211,20 @@ function ProfileContent({ business, refetch, reviews }: { business: BusinessDeta
                 </aside>
             </div>
 
-            <Modal open={modal === 'review'} title="Add review" onClose={() => setModal(null)}>
+            <Modal open={modal === 'review'} title="Add review" onClose={() => setModal(null)} >
                 <ReviewForm
-                    onSubmit={({ rating: stars, text }) => {
-                        // TODO: POST the review to your reviews endpoint
-                        setAdded((a) => [{ id: `new-${Date.now()}`, name: 'You', time: 'Just now', rating: stars, text }, ...a]);
-                        setModal(null);
-                        notify.success('Review posted');
+                    onSubmit={async ({ rating, text, isAnonymous }) => {
+                        await submitReview(business.id, {
+                            stars: rating,
+                            text,
+                            isAnonymous,
+                        });
                     }}
                 />
             </Modal>
             <Modal open={modal === 'message'} title={`Message ${business.displayName}`} onClose={() => setModal(null)}>
                 <MessageForm
                     onSubmit={() => {
-                        // TODO: POST the message to your contact endpoint
                         setModal(null);
                         notify.success('Message sent');
                     }}

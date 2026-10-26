@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios-client';
-import type { BusinessDetail, BusinessListResponse, BusinessQuery, BusinessReviewListResponse, ReviewQuery } from '../types/business-types';
+import type { AddReviews, BusinessDetail, BusinessListResponse, BusinessQuery, BusinessReviewListResponse, ReviewQuery } from '../types/business-types';
 
 export const DEFAULT_PAGE_SIZE = 12;
 export const DEFAULT_RADIUS_KM = 100;
@@ -39,9 +39,14 @@ export const businessService = {
             .then((r) => r.data),
 
     getBusinessReview: (query: ReviewQuery, businessId: string | undefined) =>
-        api.
-            get<BusinessReviewListResponse>(`/businesses/${businessId}/reviews`, {
+        api
+            .get<BusinessReviewListResponse>(`/businesses/${businessId}/reviews`, {
                 params: revToParams(query)
             })
+            .then((r) => r.data),
+
+    addReviews: (businessId: string, payload: AddReviews) =>
+        api
+            .post(`/businesses/${businessId}/reviews`, payload)
             .then((r) => r.data)
 };
